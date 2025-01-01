@@ -20,15 +20,15 @@ module simpleadder_tb();
 		bit out;
 	} transaction;
 
-	transaction randomized_tr, driven_tr, input_tr, expected_output_tr, actual_output_tr;
 
 	mailbox #(transaction) sequence_to_driver = new(1);
 	mailbox #(transaction) driver_to_monitor  = new(1);
 	mailbox #(transaction) output_monitor_to_checker  = new(1);
 	mailbox #(transaction) input_monitor_to_checker  = new(1);
 
-	logic [1:0] ina_tb, inb_tb;
-	logic [2:0] out_tb;
+	int items_to_be_generated, correct_checks, incorrect_checks;
+
+	event finish_the_test;
 
 	simpleadder simp1(
 		.clk(clk),
@@ -38,11 +38,14 @@ module simpleadder_tb();
 		.en_o(en_o),
 		.out(out)
 		);
-	
+
 	bit addition_initiated;
 
 
 	initial begin
+		items_to_be_generated = 100;
+    		$vcdplusfile("output/simpleadder.vpd");   // Specify VPD file name
+    		$vcdpluson;                        // Start dumping signals
 		fork
 			generateStimulus();
 			driver();
@@ -50,17 +53,18 @@ module simpleadder_tb();
 			inputMonitor();
 			tr_checker();
 		join_none
-		#1000;
+		@finish_the_test;
+		#1;
 		$finish;
 	end
 
 
 	task generateStimulus();
-		for (int i = 0; i < 100; i++) begin
+		transaction randomized_tr;
+		for (int i = 0; i < items_to_be_generated; i++) begin
 			randomized_tr.en_i = (i%2 == 0)? 1:0; //randomized_tr.en_i = $random();
 			randomized_tr.in_a = $random();
 			randomized_tr.in_b = $random();
-			// randomized_tr.randomize() with { addition_initiated -> randomized_tr.en_i == 0;};
 			sequence_to_driver.put(randomized_tr);
 			$display("TIME: %0t GENERATED_ITEM: %p", $time(), randomized_tr);
 			if(randomized_tr.en_i) addition_initiated_checker(randomized_tr);
@@ -68,6 +72,7 @@ module simpleadder_tb();
 	endtask : generateStimulus
 
 	task driver();
+		transaction driven_tr;
 		forever begin
 			@(negedge clk);
 
@@ -93,6 +98,7 @@ module simpleadder_tb();
 	endtask : driver
 
 	task inputMonitor();
+		transaction input_tr;
 		forever begin
 			driver_to_monitor.get(input_tr);
 			$display("TIME: %0t INPUT_ITEM: %p", $time(), input_tr);
@@ -105,18 +111,7 @@ module simpleadder_tb();
 			$display("TIME: %0t CALLING ADDITION", $time());
 			addition(input_transaction);
 		end
-		// else begin
-		// 	do_nothing();
-		// end
 	endtask : predictor
-
-
-	// function void addition_initiated_checker_d(transaction driven_tr);
-	// 	if(driven_tr.en_i) begin
-	// 		$display("TIME: %0t addition_initiated", $time());
-	// 		addition_initiated_d = 1;
-	// 	end
-	// endfunction
 
 	function void addition_initiated_checker(transaction driven_tr);
 		if(driven_tr.en_i) begin
@@ -126,6 +121,7 @@ module simpleadder_tb();
 	endfunction
 
 	task serializer(input logic [2:0] out_tb);
+		transaction expected_output_tr;
 		for (int i = 2; i >= 0; i--) begin
 			expected_output_tr.out = out_tb[i];
 			if(i == 2) begin
@@ -140,6 +136,8 @@ module simpleadder_tb();
 	endtask : serializer
 
 	task addition(input transaction input_transaction);
+		logic [1:0] ina_tb, inb_tb;
+		logic [2:0] out_tb;
 		if(addition_initiated & ~input_transaction.en_i) begin
 			ina_tb = ina_tb << 1;
 			inb_tb = inb_tb << 1;
@@ -157,6 +155,7 @@ module simpleadder_tb();
 
 	endtask : addition
 	task outputMonitor();
+		transaction actual_output_tr;
 		forever begin
 			@(posedge en_i);
 			$display("TIME: %0t ENTERED OUTPUTMONITOR", $time());
@@ -201,18 +200,20 @@ module simpleadder_tb();
 			$display("TIME: %0t ACTUAL_OUTPUT RECIEVED",$time());
 			if((expected_output.en_o == actual_output.en_o) & (expected_output.out == actual_output.out)) begin
 				$display("TIME: %0t CORRECT OUTPUT", $time());
+				correct_checks = correct_checks + 1;
 			end
 			else begin
 				$display("INCORRECT OUTPUT");
+				incorrect_checks = incorrect_checks + 1;
 				$display("TIME: %0t EXPECTED: en_o = %0d, out = %0d, but ACTUAL: en_o = %0d, out = %0d", $time(), expected_output.en_o, expected_output.out, actual_output.en_o, actual_output.out);
 			end
+			if(correct_checks == items_to_be_generated) -> finish_the_test;
 		end
 	endtask : tr_checker
 
 
 	final begin
-
-
+		$display("TIME: %0t Correct Checks: %0d, Incorrect Checks: %0d", $time(), correct_checks, incorrect_checks);
 	end
 
 endmodule : simpleadder_tb
