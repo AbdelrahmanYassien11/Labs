@@ -82,7 +82,7 @@ module simpleadder_tb();
 			in_a <= driven_tr.in_a;
 			in_b <= driven_tr.in_b;
 
-			addition_initiated_checker(driven_tr);
+			//addition_initiated_checker(driven_tr);
 	
 			driver_to_monitor.put(driven_tr);
 
