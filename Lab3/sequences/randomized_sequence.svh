@@ -21,8 +21,16 @@ class randomized_sequence;
 		for (int i = 0; i < randomized_tests.items_to_be_generated; i++) begin
 			randomized_tr = new();
 			//wait(v_inf.wait_till_item_driven.triggered());
-			assert(randomized_tr.randomize() with {((i%2 == 0) -> en_i);
-												   ((i%2 != 0) -> ~en_i);
+			// assert(randomized_tr.randomize() with {((i%2 == 0) -> en_i);
+			// 									   ((i%2 != 0) -> ~en_i);
+			// 									  });
+
+			assert(randomized_tr.randomize() with { if( i%2 == 0) {
+														en_i == 1;	
+													}
+												  else {
+												  		en_i == 0;
+												  	}
 												  });
 
 			sequence_to_driver.put(randomized_tr);
