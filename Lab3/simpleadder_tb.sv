@@ -24,12 +24,18 @@ module simpleadder_tb();
 		);
 
 	initial begin
+    	$vcdplusfile("output/simpleadder.vpd");   // Specify VPD file name
+    	$vcdpluson;                        		 // Start dumping signals
+	end
+
+	initial begin
 		v_inf = f_if;
 		test_h = new(v_inf);
-    	// $vcdplusfile("output/simpleadder.vpd");   // Specify VPD file name
-    	// $vcdpluson;                        		 // Start dumping signals
-    	test_h.execute();
+    	fork
+    		test_h.execute();
+    	join_none
 		@f_if.finish_the_test;
+		$display("TIME: %0t Correct Checks: %0d, Incorrect Checks: %0d", $time(), f_if.correct_checks, f_if.incorrect_checks);
 		#1;
 		$finish;
 	end

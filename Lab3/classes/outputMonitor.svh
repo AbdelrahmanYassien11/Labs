@@ -13,14 +13,14 @@ class outputMonitor;
 	task startMonitoring();
 		forever begin
 			@(posedge v_inf.en_i);
-			$display("TIME: %0t ENTERED OUTPUTMONITOR", $time());
+			//$display("TIME: %0t ENTERED OUTPUTMONITOR", $time());
 			repeat(3) begin
 				@(negedge v_inf.clk);
 			end
 			actual_output_tr.en_o = v_inf.en_o;
 			actual_output_tr.out  = v_inf.out;
 
-			$display("TIME: %0t FIRST ADDITION OUTPUT: en_o = %0d, out = %0d ",$time(), actual_output_tr.en_o, actual_output_tr.out);
+			//$display("FIRST ADDITION ACTUAL OUTPUT: %s ", actual_output_tr.output2string);
 
 			outputMonitor_to_scoreboard.put(actual_output_tr);
 
@@ -29,7 +29,7 @@ class outputMonitor;
 			actual_output_tr.en_o = v_inf.en_o;
 			actual_output_tr.out  = v_inf.out;
 
-			$display("TIME: %0t SECOND ADDITION OUTPUT: en_o = %0d, out = %0d ",$time(), actual_output_tr.en_o, actual_output_tr.out);
+			//$display("SECOND ADDITION ACTUAL OUTPUT: %s ", actual_output_tr.output2string);
 
 			outputMonitor_to_scoreboard.put(actual_output_tr);
 			@(negedge v_inf.clk);
@@ -37,7 +37,7 @@ class outputMonitor;
 			actual_output_tr.en_o = v_inf.en_o;
 			actual_output_tr.out  = v_inf.out;
 
-			$display("TIME: %0t THIRD ADDITION OUTPUT: en_o = %0d, out = %0d ",$time(), actual_output_tr.en_o, actual_output_tr.out);
+			//$display("THIRD ADDITION ACTUAL OUTPUT: %s ", actual_output_tr.output2string);
 
 			outputMonitor_to_scoreboard.put(actual_output_tr);
 		end

@@ -9,6 +9,8 @@ interface simpleadder_if(input bit clk);
 	bit addition_initiated;
 
 	event finish_the_test;
+	event item_put_in_driver;
+	event wait_till_item_driven;
 
 	int correct_checks, incorrect_checks;
 
