@@ -4,13 +4,13 @@ class test;
 
 	virtual alu_f v_inf;
 
-	function void new(virtual alu_f v_inf);
+	function new(virtual alu_f v_inf);
 		this.v_inf = v_inf;
-		env_h = new(v_inf);
+		env_h = new(this.v_inf);
 	endfunction
 
-	function void run_test();
+	task run_test();
 		env_h.execute();
-	endfunction : run_test
+	endtask : run_test
 
 endclass

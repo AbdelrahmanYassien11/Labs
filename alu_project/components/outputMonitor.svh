@@ -25,29 +25,32 @@
 
 class outputMonitor;
 	virtual alu_f v_inf;
-	mailbox #(transaction) outputMonitor_to_scoreboard;
+	mailbox #(transaction) outputMonitor_to_scoreboard, outputMonitor_to_coverage;
 	transaction output_item;
 
-	function void new(virtual alu_f v_inf, mailbox #(transaction) outputMonitor_to_scoreboard, mailbox #(transaction) outputMonitor_to_coverage);
+	function new(virtual alu_f v_inf, mailbox #(transaction) outputMonitor_to_scoreboard, mailbox #(transaction) outputMonitor_to_coverage);
 		this.v_inf = v_inf;
 		this.outputMonitor_to_scoreboard = outputMonitor_to_scoreboard;
-		this.outputMonitor_to_coverage = outputMonitor_to_scoverage;
+		this.outputMonitor_to_coverage = outputMonitor_to_coverage;
+		output_item = new();
 	endfunction
 
-	function void execute ();
-		@(negedge clk);
+	task execute ();
+		@(posedge v_inf.clk);
 		forever begin
 			@(negedge v_inf.clk);
 			if(v_inf.monitor_flag == 1) begin
 				sample_outputs();
+				$display("[OUTPUT_MONITOR]: %0s", output_item.output2string());
+
 			end
 		end
-	endfunction : execute
+	endtask: execute
 
-	function void sample_outputs();
+	task sample_outputs();
 		output_item.C = v_inf.C;
 		outputMonitor_to_scoreboard.put(output_item);
 		outputMonitor_to_coverage.put(output_item);
-	endfunction : sample_outputs
+	endtask: sample_outputs
 
 endclass : outputMonitor

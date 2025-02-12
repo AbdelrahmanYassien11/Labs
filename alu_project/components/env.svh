@@ -1,18 +1,20 @@
 class env;
 
-	scoreboard scorebaord_h;
-	agent agent_h;
+	scoreboard scoreboard_h;
+	//agent agent_h;
 	driver driver_h;
 	// monitor monitor_h;
 	inputMonitor  inputMonitor_h;
 	outputMonitor outputMonitor_h;
 	coverage coverage_h;
+	generator generator_h;
+	event finished_driving;
 
 	virtual alu_f v_inf;
 
 	mailbox #(transaction) generator_to_driver, inputMonitor_to_scoreboard, outputMonitor_to_scoreboard, inputMonitor_to_coverage, outputMonitor_to_coverage;
 
-	function void new(virtual alu_f v_inf);
+	function new(virtual alu_f v_inf);
 
 		this.v_inf = v_inf;
 
@@ -20,17 +22,17 @@ class env;
 		inputMonitor_to_scoreboard  = new(1);
 		outputMonitor_to_scoreboard = new(1);
 
-		generator_h 	= new(v_inf, generator_to_driver);
+		generator_h 	= new(v_inf, generator_to_driver, finished_driving);
 		scoreboard_h 	= new(v_inf, inputMonitor_to_scoreboard, outputMonitor_to_scoreboard);
-		driver_h 	 	= new(v_inf, generator_to_driver);
+		driver_h 	 	= new(v_inf, generator_to_driver, finished_driving);
 		// monitor_h 		= new(v_inf, inputMonitor_to_scoreboard, outputMonitor_to_scoreboard);
-		inputMonitor_h  = new(v_inf, inputMonitor_to_scoreboard);
-		outputMonitor_h = new(v_inf, outputMonitor_to_scoreboard);
+		inputMonitor_h  = new(v_inf, inputMonitor_to_scoreboard, inputMonitor_to_coverage);
+		outputMonitor_h = new(v_inf, outputMonitor_to_scoreboard, outputMonitor_to_coverage);
 		coverage_h      = new(v_inf, inputMonitor_to_coverage, outputMonitor_to_coverage);
 
 	endfunction
 
-	function void execute();
+	task execute();
 		fork
 			generator_h.execute();
 			scoreboard_h.execute();
@@ -40,7 +42,8 @@ class env;
 			outputMonitor_h.execute();
 			coverage_h.execute();
 		join_none
-	endfunction : execute
+		@(v_inf.finish_test);
+	endtask : execute
 
 endclass
 

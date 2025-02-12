@@ -1,11 +1,13 @@
-module alu(
-	input rst_n, clk, ALU_en,
-	input [INPUT_WIDTH-1:0] A, B,
-	input a_en, b_en,
-	input [2:0] a_op, 
-	input [1:0] b_op,
-	output C
+module alu #(parameter INPUT_WIDTH = 5, OUTPUT_WIDTH = 6) (
+	input wire rst_n, clk, ALU_en,
+	input wire signed [INPUT_WIDTH-1:0] A, B,
+	input wire a_en, b_en,
+	input wire [2:0] a_op, 
+	input wire [1:0] b_op,
+	output reg [OUTPUT_WIDTH-1:0] C
 );
+
+	localparam A_OFF_B_OFF = 2'b00, A_ON_B_OFF = 2'b10, A_OFF_B_ON = 2'b01, A_ON_B_ON = 2'b11;
 
 	wire [1:0] a_b_en;
 	assign a_b_en = {a_en, b_en};
