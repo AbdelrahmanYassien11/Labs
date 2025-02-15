@@ -49,7 +49,9 @@ module alu #(parameter INPUT_WIDTH = 5, OUTPUT_WIDTH = 6) (
 				end 
 			endcase
 		end
+		else begin
+			C <= C;
+		end
 	end
 
 endmodule
-//0101 + 0101 = 1010; ~? 0101; nand? ~0101 1010

@@ -1,23 +1,21 @@
-class predictor;
+class predictor#(type T = int) extends predictor_base#(T);
 
-	virtual alu_f v_inf;
-	mailbox #(transaction )inputMonitor_to_predictor, predictor_to_comparator;
-	transaction input_item, predicted_item;
+	T input_item, predicted_item;
 
-	function new(virtual alu_f v_inf, mailbox #(transaction) inputMonitor_to_predictor, mailbox #(transaction) predictor_to_comparator);
-	 	this.v_inf = v_inf;
-	 	this.inputMonitor_to_predictor = inputMonitor_to_predictor;
-	 	this.predictor_to_comparator   = predictor_to_comparator;
+	function new(virtual alu_f v_inf, mailbox #(T) inputMonitor_to_predictor, mailbox #(T) predictor_to_comparator);
+		super.new(v_inf, inputMonitor_to_predictor, predictor_to_comparator);
+	 	predicted_item = new();
 	endfunction 
 
 	task execute();
 		forever begin
 			input_item = new();
 			inputMonitor_to_predictor.get(input_item);
+			$display("[PREDICTOR]: RECIEVED_ITEM: %0s",input_item.input2string());
 			predict();
 			predictor_to_comparator.put(predicted_item);
+			$display("[PREDICTOR]: SENT_ITEM: %0s",predicted_item.output2string());
 		end
-
 	endtask : execute
 
 

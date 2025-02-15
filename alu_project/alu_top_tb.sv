@@ -13,14 +13,14 @@ module alu_top_tb();
 
 	alu #(.INPUT_WIDTH(INPUT_WIDTH), .OUTPUT_WIDTH(OUTPUT_WIDTH)) alu1( 
 		.clk(clk),
+		.rst_n(a_if.rst_n),
+		.ALU_en(a_if.ALU_en),
 		.A(a_if.A),
 		.B(a_if.B),
 		.a_en(a_if.a_en),
 		.b_en(a_if.b_en),
 		.a_op(a_if.a_op),
 		.b_op(a_if.b_op),
-		.rst_n(a_if.rst_n),
-		.ALU_en(a_if.ALU_en),
 		.C(a_if.C)
 		);
 
@@ -32,7 +32,8 @@ module alu_top_tb();
 		fork
 			test_h.run_test();
 		join_none
-		@(v_inf.finish_test);
+		@a_if.finish_test;
+		$finish;
 	end
 
 	// final begin

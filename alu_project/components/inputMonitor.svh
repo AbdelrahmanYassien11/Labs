@@ -1,16 +1,13 @@
-class inputMonitor;
-	virtual alu_f v_inf;
-	mailbox #(transaction) inputMonitor_to_scoreboard, inputMonitor_to_coverage;
-	transaction input_item;
+class inputMonitor#(type T = int) extends inputMonitor_base#(T);
 
-	function new(virtual alu_f v_inf, mailbox #(transaction) inputMonitor_to_scoreboard, mailbox #(transaction) inputMonitor_to_coverage);
-		this.v_inf = v_inf;
-		this.inputMonitor_to_scoreboard = inputMonitor_to_scoreboard;
-		this.inputMonitor_to_coverage = inputMonitor_to_coverage;
+	T input_item;
+
+	function new(virtual alu_f v_inf, mailbox #(T) inputMonitor_to_scoreboard, mailbox #(T) inputMonitor_to_coverage);
+		super.new(v_inf, inputMonitor_to_scoreboard, inputMonitor_to_coverage);
 		input_item = new();
 	endfunction 
 
-	task execute ();
+	virtual task execute ();
 		forever begin
 			@(posedge v_inf.clk);
 			if(v_inf.monitor_flag == 1) begin
@@ -20,7 +17,7 @@ class inputMonitor;
 		end
 	endtask : execute
 
-	task sample_inputs();
+	virtual task sample_inputs();
 		input_item.rst_n  = v_inf.rst_n;
 		input_item.ALU_en = v_inf.ALU_en;
 		input_item.a_en   = v_inf.a_en;
@@ -32,6 +29,5 @@ class inputMonitor;
 		inputMonitor_to_scoreboard.put(input_item);
 		inputMonitor_to_coverage.put(input_item);
 	endtask : sample_inputs
-
 
 endclass : inputMonitor

@@ -1,16 +1,16 @@
-class test;
+class test extends test_base;
 
-	env env_h;
-
-	virtual alu_f v_inf;
+	env#(transaction) env_h;
 
 	function new(virtual alu_f v_inf);
-		this.v_inf = v_inf;
-		env_h = new(this.v_inf);
+		super.new(v_inf);
+		env_h = new(v_inf);
 	endfunction
 
 	task run_test();
-		env_h.execute();
+		fork
+			env_h.execute();
+		join_none
 	endtask : run_test
 
 endclass
