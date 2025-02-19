@@ -1,18 +1,22 @@
 
-covergroup A_cg_df(input int signed i, ref bit signed [INPUT_WIDTH-1:0] A);
-   	df: coverpoint A {
-   		bins A[] = {i};
-   	}
+covergroup A_cg_df(input int signed i, input transaction_base cov);
+	option.weight = ((i == -16)? 0:1);
    	option.name = $sformatf("df = %0d",i);
    	option.per_instance = 1;
+   	df: coverpoint cov.A iff (cov.rst_n && cov.ALU_en) {
+   		bins A[] = {i};
+   		illegal_bins A_illegal[] = {-16};
+   	}
 endgroup : A_cg_df
 
-covergroup B_cg_df(input int signed i, ref bit signed [INPUT_WIDTH-1:0] B);
-   	df: coverpoint B {
-   		bins B[] = {i};
-   	}
+covergroup B_cg_df(input int signed i, input transaction_base cov);
+   	option.weight = ((i == -16)? 0:1);
    	option.name = $sformatf("df = %0d",i);
-   	option.per_instance = 1;
+   	option.per_instance = 1;   	
+   	df: coverpoint cov.B iff (cov.rst_n && cov.ALU_en) {
+   		bins B[] = {i};
+   		illegal_bins B_illegal[] = {-16};
+   	}
 endgroup : B_cg_df
 
 covergroup A_op_cg_df(input int i, input transaction_base cov);
@@ -121,6 +125,14 @@ covergroup rstn_cg_dt(input int i, input int k, input transaction_base cov);
 	}
 endgroup : rstn_cg_dt
 
+covergroup rstn_thrice_consecutive (input int i, input transaction_base cov);
+	option.name = $sformatf("df = %0d",i);
+	option.per_instance = 1;
+	df: coverpoint cov.rst_n{
+		bins rst_n[] = (cov.rst_n[*i]);
+	}
+endgroup : rstn_thrice_consecutive
+
 covergroup C_cg_df(input int signed i, input transaction_base cov);
 	option.weight = ((i == -32 )?0:1);
 	option.name = $sformatf("df = %0d",i);
@@ -135,6 +147,7 @@ covergroup C_cg_dt(input int signed i, input int signed k, input transaction cov
 	option.weight = ((i == -32 || k == -32)?0:1);
 	option.name = $sformatf("dt %0d => %0d", i, k);
 	option.per_instance = 1;
+	option.goal = 50;
 	df: coverpoint cov.C iff (cov.rst_n) {
 		bins C[] = (i => k);
 		illegal_bins C_illegal1[] = (i => -32);
@@ -148,8 +161,8 @@ class coverage#(type T = int) extends coverage_base#(T);
 	
 	protected int signed j, z;
 
-	A_cg_df A_cg_df_vals [(2**INPUT_WIDTH)-1];
-	B_cg_df B_cg_df_vals [(2**INPUT_WIDTH)-1];
+	A_cg_df A_cg_df_vals [(2**INPUT_WIDTH)];
+	B_cg_df B_cg_df_vals [(2**INPUT_WIDTH)];
 
 	A_op_cg_df   A_op_cg_df_vals   [2**A_OP_WIDTH];
 	B_op01_cg_df B_op01_cg_df_vals [2**B_OP_WIDTH];
@@ -160,17 +173,18 @@ class coverage#(type T = int) extends coverage_base#(T);
 	B_op01_cg_dt B_op01_cg_dt_vals [(2**B_OP_WIDTH)][(2**B_OP_WIDTH)];
 	B_op11_cg_dt B_op11_cg_dt_vals [(2**B_OP_WIDTH)][(2**B_OP_WIDTH)];
 
-	A_B_en_cg_df A_B_en_cg_df_vals [2**(2*EN_WIDTH)];
-	A_B_en_cg_dt A_B_en_cg_dt_vals [2**(2*EN_WIDTH)][2**(2*EN_WIDTH)];
+	A_B_en_cg_df A_B_en_cg_df_vals [2**(2*1)];
+	A_B_en_cg_dt A_B_en_cg_dt_vals [2**(2*1)][2**(2*1)];
 
-	ALU_en_cg_df ALU_en_cg_df_vals [2**EN_WIDTH];
-	ALU_en_cg_dt ALU_en_cg_dt_vals [2**EN_WIDTH][2**EN_WIDTH];
+	ALU_en_cg_df ALU_en_cg_df_vals [2**1];
+	ALU_en_cg_dt ALU_en_cg_dt_vals [2**1][2**1];
 
 	rstn_cg_df rstn_cg_df_vals [2**1];
 	rstn_cg_dt rstn_cg_dt_vals [2**1][2**1];
+	rstn_thrice_consecutive rstn_thrice_consecutive_vals [3:1];
 
-	C_cg_df C_cg_df_vals [(2**OUTPUT_WIDTH)-1];
-	C_cg_dt C_cg_dt_vals [(2**OUTPUT_WIDTH)-1][(2**OUTPUT_WIDTH)-1];
+	C_cg_df C_cg_df_vals [(2**OUTPUT_WIDTH)];
+	C_cg_dt C_cg_dt_vals [(2**OUTPUT_WIDTH)][(2**OUTPUT_WIDTH)];
 
 	function new(virtual alu_f v_inf, mailbox #(T) inputMonitor_to_coverage, outputMonitor_to_coverage);
 		super.new(v_inf, inputMonitor_to_coverage, outputMonitor_to_coverage);
@@ -179,20 +193,20 @@ class coverage#(type T = int) extends coverage_base#(T);
 		input_cov_copied = new();
 		output_cov_copied = new();
 
-		j = -(2**(INPUT_WIDTH-1));
-		for (int i = 0; i < (2**(INPUT_WIDTH)) ; i++) begin
-			A_cg_df_vals[i] = new(j, input_cov_copied.A);
-			B_cg_df_vals[i] = new(j, input_cov_copied.B);
+		j = -(2**(INPUT_WIDTH-1));//-16
+		for (int i = 0; i < (2**(INPUT_WIDTH)) ; i++) begin //0 to 31
+			A_cg_df_vals[i] = new(j, input_cov_copied);
+			B_cg_df_vals[i] = new(j, input_cov_copied);
 			j = j + 1;
 		end
 
-		j = -(2**(OUTPUT_WIDTH-1));
+		j = -(2**(OUTPUT_WIDTH-1));//-32
 		for (int i = 0; i < (2**(OUTPUT_WIDTH)) ; i++) begin
 			C_cg_df_vals[i] = new(j, output_cov_copied);
 			j = j + 1;
 		end
 
-		z = -(2**(OUTPUT_WIDTH-1));
+		z = -(2**(OUTPUT_WIDTH-1));//-32
 		for (int i = 0; i < (2**(OUTPUT_WIDTH)) ; i++) begin
 			j = -(2**(OUTPUT_WIDTH-1));
 			for (int k = 0; k < (2**(OUTPUT_WIDTH)); k++) begin
@@ -218,6 +232,11 @@ class coverage#(type T = int) extends coverage_base#(T);
 
 		foreach(rstn_cg_df_vals[i]) rstn_cg_df_vals[i] = new(i,input_cov_copied);
 		foreach(rstn_cg_dt_vals[i,j]) rstn_cg_dt_vals[i][j] = new(i,j,input_cov_copied);
+		
+		for (int i = 1; i < 4 ; i++) begin
+			rstn_thrice_consecutive_vals[i] = new(i, input_cov_copied);
+		end
+		//foreach(rstn_thrice_consecutive_vals[i]) rstn_thrice_consecutive_vals[i] = new(i, input_cov_copied);
 
 	endfunction 
 
@@ -254,6 +273,7 @@ class coverage#(type T = int) extends coverage_base#(T);
 
 			foreach(rstn_cg_df_vals[i]) rstn_cg_df_vals[i].sample();
 			foreach(rstn_cg_dt_vals[i,j]) rstn_cg_dt_vals[i][j].sample();
+			foreach(rstn_thrice_consecutive_vals[i]) rstn_thrice_consecutive_vals[i].sample();
 		end
 	endtask : sample_inputs
 

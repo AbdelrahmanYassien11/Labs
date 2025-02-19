@@ -1,4 +1,4 @@
-virtual class test_base;
+class test_base;
 
 	virtual alu_f v_inf;
 
@@ -6,6 +6,7 @@ virtual class test_base;
 		this.v_inf = v_inf;
 	endfunction
 
-	pure virtual task run_test;
+	virtual task run_test;
+	endtask : run_test
 
 endclass : test_base

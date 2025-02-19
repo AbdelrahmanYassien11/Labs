@@ -1,4 +1,4 @@
-class generator#(type T = int) extends generator_base#(T);
+class random_generator#(type T = int) extends reset_generator#(T);
 
 	T generated_item;
 	function new(virtual alu_f v_inf, mailbox #(T) generator_to_driver, event finished_driving);
@@ -7,7 +7,7 @@ class generator#(type T = int) extends generator_base#(T);
 	endfunction
 
 	virtual task execute();
-		reset_item();
+		super.execute();
 		@(finished_driving);
 		assert(generated_item.randomize());
 		generated_item.NO_OF_ITEMS.rand_mode(0);
@@ -20,13 +20,5 @@ class generator#(type T = int) extends generator_base#(T);
 		 	@(finished_driving);
 		end
 	 endtask : execute
-
-
-	virtual task reset_item();
-		generated_item.rst_n = 0;
-		generator_to_driver.put(generated_item);
-		$display("[SEQUENCE]: GENERATED_ITEM: %s",generated_item.input2string());
-	endtask : reset_item
-
 
 endclass
