@@ -15,7 +15,11 @@ class error_injection_generator#(type T = int) extends reset_generator#(T);
 		repeat(T::NO_OF_ITEMS_ST) begin
 			generated_item = new();
 		 	generated_item.op_c.constraint_mode(0);
+		 	generated_item.A_c.constraint_mode(0);
+		 	generated_item.B_c.constraint_mode(0);
 		 	assert(generated_item.randomize() with { 
+		 		A dist {[-16:15]:=1};
+		 		B dist {[-16:15]:=1};
 		 		if 		({a_en, ~b_en}) {a_op dist {[0:7]:=1};}
 		 		else if ({a_en,  b_en}) {b_op dist {[0:3]:=1};}
 		 		else if ({~a_en, b_en}) {b_op dist {[0:3]:=1};}});

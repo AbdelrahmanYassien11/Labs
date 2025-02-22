@@ -1,6 +1,6 @@
 class driver#(type T = int) extends driver_base#(T);
 
-	T driven_item;
+	protected T driven_item;
 
 	function new(virtual alu_f v_inf, mailbox#(T) generator_to_driver, event finished_driving);
 		super.new(v_inf, generator_to_driver, finished_driving);

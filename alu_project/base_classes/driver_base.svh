@@ -11,7 +11,5 @@ virtual class driver_base#(type T = int);
 	endfunction 
 
 	pure virtual task execute;
-
-	//pure virtual function drive_item;
 	
 endclass : driver_base

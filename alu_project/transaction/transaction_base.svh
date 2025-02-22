@@ -1,10 +1,12 @@
 class transaction_base;
 
-	rand bit signed [INPUT_WIDTH-1:0] A, B;
-	rand bit [2:0] a_op;
-	rand bit [1:0] b_op;
 	rand bit ALU_en, rst_n, a_en, b_en;
-	logic signed [OUTPUT_WIDTH-1:0]C;
+	rand bit signed [INPUT_WIDTH-1:0] A, B;
+	rand bit 		[A_OP_WIDTH:0] a_op;
+	rand bit 		[B_OP_WIDTH:0] b_op;
+		logic signed [OUTPUT_WIDTH-1:0]C;
+
+
 	rand int NO_OF_ITEMS;
 	static int NO_OF_ITEMS_ST;
 
@@ -50,4 +52,4 @@ class transaction_base;
 		return s;
 	endfunction : item2string
 
-endclass;
+endclass

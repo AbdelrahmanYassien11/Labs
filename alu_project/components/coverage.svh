@@ -5,7 +5,11 @@ covergroup A_cg_df(input int signed i, input transaction_base cov);
    	option.per_instance = 1;
    	df: coverpoint cov.A iff (cov.rst_n && cov.ALU_en) {
    		bins A[] = {i};
-   		illegal_bins A_illegal[] = {-16};
+   		`ifdef RANDOM_ERROR_INJECTION_TEST
+			ignore_bins A_ignored[] = {-16};
+		`else 
+			illegal_bins A_illegal[] = {-16};
+		`endif
    	}
 endgroup : A_cg_df
 
@@ -15,7 +19,11 @@ covergroup B_cg_df(input int signed i, input transaction_base cov);
    	option.per_instance = 1;   	
    	df: coverpoint cov.B iff (cov.rst_n && cov.ALU_en) {
    		bins B[] = {i};
-   		illegal_bins B_illegal[] = {-16};
+   		`ifdef RANDOM_ERROR_INJECTION_TEST
+			ignore_bins A_ignored[] = {-16};
+		`else 
+			illegal_bins A_illegal[] = {-16};
+		`endif
    	}
 endgroup : B_cg_df
 
@@ -25,7 +33,11 @@ covergroup A_op_cg_df(input int i, input transaction_base cov);
 	option.per_instance = 1;
 	df: coverpoint cov.a_op iff (cov.rst_n && (cov.a_en & ~cov.b_en) && cov.ALU_en) {
 		bins A_op[] = {i};
-		illegal_bins A_op_illegal[] = {7};
+   		`ifdef RANDOM_ERROR_INJECTION_TEST
+			ignore_bins A_op_ignored[] = {7};
+		`else 
+			illegal_bins A_op_illegal[] = {7};
+		`endif
 	}
 endgroup : A_op_cg_df
 
@@ -35,8 +47,13 @@ covergroup A_op_cg_dt(input int i, input int k , input transaction_base cov);
    	option.per_instance = 1;
    	dt: coverpoint cov.a_op iff (cov.rst_n && (cov.a_en & ~cov.b_en) && cov.ALU_en) {
    		bins A_op[] = (i => k);
-   		illegal_bins A_op_illegal1[] = (i => 7);
-   		illegal_bins A_op_illegal2[] = (7 => k);
+   		`ifdef RANDOM_ERROR_INJECTION_TEST
+			ignore_bins A_op_ignored1[] = (i => 7);
+   			ignore_bins A_op_ignored2[] = (7 => k);
+		`else 
+   			illegal_bins A_op_illegal1[] = (i => 7);
+   			illegal_bins A_op_illegal2[] = (7 => k);
+		`endif
    	}	
 endgroup : A_op_cg_dt
 
@@ -46,7 +63,11 @@ covergroup B_op01_cg_df(input int i, input transaction_base cov);
 	option.per_instance = 1;
 	df: coverpoint cov.b_op iff (cov.rst_n && cov.ALU_en && (~cov.a_en && cov.b_en)) {
 		bins B_op[] = {i};
-		illegal_bins A_op_illegal[] = {3};
+   		`ifdef RANDOM_ERROR_INJECTION_TEST
+			ignore_bins B_op_ignored[] = {3};
+		`else 
+			illegal_bins B_op_illegal[] = {3};
+		`endif
 	}
 endgroup : B_op01_cg_df
 
@@ -56,8 +77,13 @@ covergroup B_op01_cg_dt(input int i, input int k , input transaction_base cov);
    	option.per_instance = 1;
    	dt: coverpoint cov.b_op iff (cov.rst_n && (~cov.a_en & cov.b_en) && cov.ALU_en) {
    		bins B_op[] = (i => k);
-   		illegal_bins A_op_illegal1[] = (i => 3);
-   		illegal_bins A_op_illegal2[] = (3 => k);
+   		`ifdef RANDOM_ERROR_INJECTION_TEST
+			ignore_bins B_op_ignored1[] = (i => 3);
+   			ignore_bins B_op_ignored2[] = (3 => k);
+		`else 
+   			illegal_bins B_op_illegal1[] = (i => 3);
+   			illegal_bins B_op_illegal2[] = (3 => k);
+		`endif
    	}
 endgroup : B_op01_cg_dt
 
@@ -139,7 +165,11 @@ covergroup C_cg_df(input int signed i, input transaction_base cov);
 	option.per_instance = 1;
 	df: coverpoint cov.C iff (cov.rst_n) {
 		bins C[] = {i};
-		illegal_bins C_illegal[]= {-32};
+		`ifdef RANDOM_ERROR_INJECTION_TEST
+			ignore_bins C_ignored    = {-32};
+		`else 
+			illegal_bins C_illegal[] = {-32};
+		`endif
 	}
 endgroup : C_cg_df
 
@@ -185,6 +215,100 @@ class coverage#(type T = int) extends coverage_base#(T);
 
 	C_cg_df C_cg_df_vals [(2**OUTPUT_WIDTH)];
 	C_cg_dt C_cg_dt_vals [(2**OUTPUT_WIDTH)][(2**OUTPUT_WIDTH)];
+
+
+
+	// covergroup inputs_cg();
+	// 	option.per_instance = 1;
+	// 	A_df:coverpoint input_cov_copied.A iff (input_cov_copied.ALU_en & input_cov_copied.rst_n){
+	// 		option.weight = ((input_cov_copied.A == -16)?0:1);
+	// 		//option.per_instance = 1;
+	// 		bins A[] = {[-16:15]};
+	// 		`ifdef RANDOM_ERROR_INJECTION_TEST
+	// 			ignore_bins A_ignored[] = {-16};
+	// 		`else 
+	// 			illegal_bins A_illegal[] = {-16};
+	// 		`endif
+	// 	}
+
+	// 	B_df:coverpoint input_cov_copied.B iff (input_cov_copied.ALU_en & input_cov_copied.rst_n){
+	// 		option.weight = ((input_cov_copied.B == -16)?0:1);
+	// 		//option.per_instance = 1;
+	// 		bins B[] = {[-16:15]};
+	// 		`ifdef RANDOM_ERROR_INJECTION_TEST
+	// 			ignore_bins B_ignored[] = {-16};
+	// 		`else 
+	// 			illegal_bins B_illegal[] = {-16};
+	// 		`endif
+	// 	}
+
+	// 	A_en_df:coverpoint input_cov_copied.a_en iff (input_cov_copied.ALU_en & input_cov_copied.rst_n){
+	// 		bins A_en[] = {0,1};
+	// 	}
+
+	// 	B_en_df:coverpoint input_cov_copied.b_en iff (input_cov_copied.ALU_en & input_cov_copied.rst_n){
+	// 		bins B_en[] = {0,1};
+	// 	}
+
+	// 	A_op_df:coverpoint input_cov_copied.a_op iff (input_cov_copied.ALU_en & input_cov_copied.rst_n && (input_cov_copied.a_en & ~input_cov_copied.b_en)){
+	// 		option.weight = ((input_cov_copied.a_op == 7)?0:1);
+	// 		bins A_op[] = {[0:7]};
+	// 		`ifdef RANDOM_ERROR_INJECTION_TEST
+	// 			ignore_bins A_op_ignored[] = {7};
+	// 		`else 
+	// 			illegal_bins A_op_illegal[] = {7};
+	// 		`endif
+	// 	}
+
+	// 	B_op01_df:coverpoint input_cov_copied.b_op iff (input_cov_copied.ALU_en & input_cov_copied.rst_n && (~input_cov_copied.a_en & input_cov_copied.b_en)){
+	// 		option.weight = ((input_cov_copied.b_op == 3)?0:1);
+	// 		//option.per_instance = 1;
+	// 		bins B_op01[] = {[0:3]};
+	// 		`ifdef RANDOM_ERROR_INJECTION_TEST
+	// 			ignore_bins B_op01_ignored[] = {3};
+	// 		`else 
+	// 			illegal_bins B_op01_illegal[] = {3};
+	// 		`endif
+	// 	}
+
+	// 	B_op11_df:coverpoint input_cov_copied.b_op iff (input_cov_copied.ALU_en & input_cov_copied.rst_n && (input_cov_copied.a_en & input_cov_copied.b_en)){
+	// 		bins B_op11[] = {[0:3]};
+	// 	}
+
+	// 	A_B_Aen_Ben_Aop: cross A_df, B_df, A_en_df, B_en_df, A_op_df {
+	// 		option.cross_retain_auto_bins = 0;
+ //        	bins A_op_cases	= binsof(A_df) && binsof(B_df) && binsof(A_en_df) intersect {1} && 
+ //        					  binsof(B_en_df) intersect {0} && binsof(A_op_df);
+	// 	}
+
+	// 	A_B_Aen_Ben_Bop01: cross A_df, B_df, A_en_df, B_en_df, B_op01_df {
+	// 		option.cross_retain_auto_bins = 0;
+ //        	bins B_op01_cases = binsof(A_df) && binsof(B_df) && binsof(A_en_df) intersect {0} &&
+ //        					    binsof(B_en_df) intersect {1} && binsof(B_op01_df);
+	// 	}
+
+	// 	A_B_Aen_Ben_Bop11: cross A_df, B_df, A_en_df, B_en_df, B_op11_df iff {
+	// 		option.cross_retain_auto_bins = 0;
+
+ //        	bins B_op11_cases = binsof(A_df) && binsof(B_df) && binsof(A_en_df) intersect {1} &&
+ //        					    binsof(B_en_df) intersect {1} && binsof(B_op11_df);
+	// 	}
+
+	// endgroup : inputs_cg
+
+	// covergroup outputs_cg();
+
+	// 	C_df:coverpoint output_cov_copied.A iff (output_cov_copied.rst_n){
+	// 		option.weight = ((output_cov_copied.C == -32)?0:1);
+	// 		bins C[] = {[-16:15]};
+	// 		`ifdef RANDOM_ERROR_INJECTION_TEST
+	// 			ignore_bins C_ignored[] = {-32};
+	// 		`else 
+	// 			illegal_bins C_illegal[] = {-32};
+	// 		`endif
+	// 	}
+	   	
+	endgroup : outputs_cg
 
 	function new(virtual alu_f v_inf, mailbox #(T) inputMonitor_to_coverage, outputMonitor_to_coverage);
 		super.new(v_inf, inputMonitor_to_coverage, outputMonitor_to_coverage);
@@ -236,10 +360,13 @@ class coverage#(type T = int) extends coverage_base#(T);
 		for (int i = 1; i < 4 ; i++) begin
 			rstn_thrice_consecutive_vals[i] = new(i, input_cov_copied);
 		end
-		//foreach(rstn_thrice_consecutive_vals[i]) rstn_thrice_consecutive_vals[i] = new(i, input_cov_copied);
+
+		inputs_cg  = new();
+
+		outputs_cg = new();
+		
 
 	endfunction 
-
 
 	task execute ();
 		fork
@@ -247,6 +374,7 @@ class coverage#(type T = int) extends coverage_base#(T);
 			sample_outputs();
 		join_none
 	endtask : execute 
+
 
 	task sample_inputs();
 		forever begin
@@ -274,6 +402,9 @@ class coverage#(type T = int) extends coverage_base#(T);
 			foreach(rstn_cg_df_vals[i]) rstn_cg_df_vals[i].sample();
 			foreach(rstn_cg_dt_vals[i,j]) rstn_cg_dt_vals[i][j].sample();
 			foreach(rstn_thrice_consecutive_vals[i]) rstn_thrice_consecutive_vals[i].sample();
+
+			inputs_cg.sample();
+			outputs_cg.sample();
 		end
 	endtask : sample_inputs
 
