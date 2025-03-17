@@ -15,8 +15,8 @@ package alu_pkg;
 
 	parameter INPUT_WIDTH = 5;
 	parameter OUTPUT_WIDTH = 6;
-	parameter A_OP_WIDTH  = 2;
-	parameter B_OP_WIDTH  = 1;
+	parameter A_OP_WIDTH  = 3;
+	parameter B_OP_WIDTH  = 2;
  	parameter CLK_PERIOD  = 5;
 	//parameter EN_WIDTH = 0;
 	parameter A_OFF_B_OFF 	= 2'b00, A_ON_B_OFF = 2'b10, A_OFF_B_ON = 2'b01, A_ON_B_ON = 2'b11;
