@@ -1,0 +1,21 @@
+Word Landscape -- PDF
+Outline
+
+Async Reset
+Rest Aware
+Reset Interface
+Watchdog TB
+Assertion check on output while reset
+
+1- Diagram "in details"
+2- Sequence Diagram
+3- DRV / MON -- how to handle reset
+4- SQR Stop_sequences - alternative item_done
+5- TLM Connection
+6- Snap RST Interface 
+7- Watch DOG TOP TB
+8- Assertion 
+
+
+
+

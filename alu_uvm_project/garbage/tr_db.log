@@ -1,0 +1,3 @@
+  CREATE_STREAM @0 {NAME:v_seq T:Transactions SCOPE:uvm_test_top.env.v_seqr STREAM:1740}
+  CREATE_STREAM @0 {NAME:rst_seq T:Transactions SCOPE:uvm_test_top.env.alu_reset_agnt.sequencer STREAM:1757}
+  CREATE_STREAM @0 {NAME:alu_seq T:Transactions SCOPE:uvm_test_top.env.alu_agnt.sequencer STREAM:1760}

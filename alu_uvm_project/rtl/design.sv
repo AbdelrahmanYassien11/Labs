@@ -1,0 +1,114 @@
+module ALU #(parameter INPUT_WIDTH, OUTPUT_WIDTH, A_OP_WIDTH, B_OP_WIDTH) (
+  // Clock and Reset
+  input wire clk,      // Clock signal
+  input wire rst_n,    // Active-low reset
+
+  // Control Signals
+  input wire ALU_en,   // ALU enable signal
+  input wire a_en,     // Enable signal for operation set A
+  input wire b_en,     // Enable signal for operation set B
+
+  // Operation Selection
+  input wire [A_OP_WIDTH-1:0] a_op, // Operation selector for set A
+  input wire [B_OP_WIDTH-1:0] b_op, // Operation selector for set B
+
+  // Data Inputs
+  input wire signed [INPUT_WIDTH-1:0] A, // 5-bit signed input operand A
+  input wire signed [INPUT_WIDTH-1:0] B, // 5-bit signed input operand B
+
+  // Output
+  output reg signed [OUTPUT_WIDTH-1:0] C // 6-bit signed output result
+);
+
+  // Operation Set A Parameters (Basic Arithmetic & Logic Operations)
+
+  localparam [2:0] A_ADD   = 3'd0;
+  localparam [2:0] A_SUB   = 3'd1;
+  localparam [2:0] A_XOR   = 3'd2;
+  localparam [2:0] A_AND1  = 3'd3;
+  localparam [2:0] A_AND2  = 3'd4;
+  localparam [2:0] A_OR    = 3'd5;
+  localparam [2:0] A_XNOR  = 3'd6;
+  localparam [2:0] A_NULL  = 3'd7;
+
+  // Operation Set B Parameters (Additional Operations in Two Sets)
+
+  // Operation Set B Parameters (Set 1)
+  localparam [1:0] B01_NAND  = 2'd0;
+  localparam [1:0] B01_ADD1  = 2'd1;
+  localparam [1:0] B01_ADD2  = 2'd2;
+  localparam [1:0] B01_NULL  = 2'd3;
+
+  // Operation Set B Parameters (Set 2)
+  localparam [1:0] B11_XOR     = 2'd0;
+  localparam [1:0] B11_XNOR    = 2'd1;
+  localparam [1:0] B11_A_SUB_1 = 2'd2;
+  localparam [1:0] B11_B_ADD_2 = 2'd3;
+
+
+
+  // Control signals determining which operation set is active
+  wire operand_A    =  a_en   && ~b_en;  		      // Set A operations
+  wire operand_B01  =  ~a_en  && b_en;   	 	      // Set B (Subset 1) operations
+  wire operand_B11  =  a_en   && b_en;            // Set B (Subset 2) operations
+  wire valid_mode   =  ALU_en && (a_en || b_en);  // Valid Mode
+
+  // Internal signal to hold the computed result
+  reg signed [5:0] result;
+
+  // ALU Operation Logic - Determines the result based on the enabled operation set
+  always @(*) begin
+    result = 6'b0; // Default output value
+
+    if (operand_A) begin
+      // Execute operations from set A
+      case (a_op)
+        A_ADD:  result = {A[4],A} + {B[4],B};   // Addition
+        A_SUB:  result = {A[4],A} - {B[4],B};   // Subtraction
+        A_XOR:  result = {1'b0,A} ^ {1'b0,B};   // XOR
+        A_AND1: result = {1'b0,A} & {1'b0,B};   // AND1
+        A_AND2: result = {1'b0,A} & {1'b0,B};   // AND2
+        A_OR:   result = {1'b0,A} | {1'b0,B};   // OR
+        A_XNOR: result = ~({1'b0,A} ^ {1'b0,B}); // XNOR
+        A_NULL: begin
+          		result = 6'b0;	
+          //$error("Illegal ALU operation detected at set A"); 
+        end
+          default: result = 6'b0;    // Default case
+      endcase
+    end
+    else if (operand_B01) begin
+      // Execute operations from set B (Subset 1)
+      case (b_op)
+        B01_NAND: result = ( (~{1'b0,A}) | (~{1'b0,B}));  // NAND
+        B01_ADD1: result =     {A[4],A} + {B[4],B};     // Addition1
+        B01_ADD2: result =     {A[4],A} + {B[4],B};     // Addition2
+        B01_NULL: begin result = 6'b0;
+          //$error("Illegal ALU operation detected at set B.1");
+        end
+        default:   result = 6'b0;      // Default case
+      endcase
+    end
+    else if (operand_B11) begin
+      // Execute operations from set B (Subset 2)
+      case (b_op)
+        B11_XOR:     result = {1'b0,A} ^ {1'b0,B};    // XOR
+        B11_XNOR:    result = ~({1'b0,A} ^ {1'b0,B}); // XNOR
+        B11_A_SUB_1: result = {A[4],A} - 6'd1; // Decrement A by 1
+        B11_B_ADD_2: result = {B[4],B} + 6'd2; // Increment B by 2
+        default:      result = 6'b0;     // Default case
+      endcase
+    end
+  end
+
+  // Output Register - Captures the result at the rising edge of clk
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+      C <= 6'b0; // Reset output to 0
+    end
+    else begin
+      if(valid_mode) C <= result; // Store computed result
+    end
+  end
+
+endmodule
