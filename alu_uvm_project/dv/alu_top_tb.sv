@@ -49,7 +49,7 @@ module alu_top_tb;
   //---------------------------------------
   alu_if alu_intf(clk);
   rst_if rst_intf(rst_n);
-  // sva_if sva_intf(alu_intf,rst_intf,rst_n,clk);
+  sva_if sva_intf(alu_intf,rst_intf,rst_n,clk);
 
   //---------------------------------------
   //DUT instance
@@ -106,6 +106,26 @@ module alu_top_tb;
   //---------------------------------------
   initial begin 
     run_test();
+  end
+
+    // Use runtime selection to set the VPD file and choose the test
+  initial begin
+    string test_name;
+    string vpd_file;
+    #1ns;
+    if(!(uvm_config_db#(string)::get(null,"uvm_test_top.env_h","test_name",test_name)))
+      `uvm_fatal("ALU_TOP_TB", "COULDN'T GET TEST NAME")
+    
+    // Select VPD file based on runtime UVM_TESTNAME
+    case (test_name)
+      "random_test":      vpd_file = "output/random_test.vpd";
+      "repitition_test":  vpd_file = "output/repitition_test.vpd";
+      "error_test":       vpd_file = "output/error_test.vpd";
+      default :           vpd_file = "output/random_test.vpd";
+    endcase
+    // Open the VPD file and start dumping signals
+    $vcdplusfile(vpd_file);
+    $vcdpluson;
   end
 
 endmodule : alu_top_tb

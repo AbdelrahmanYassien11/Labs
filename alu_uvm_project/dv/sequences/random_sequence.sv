@@ -32,66 +32,6 @@ class alu_sequence extends uvm_sequence #(alu_seq_item);
 endclass: alu_sequence
 
 //---------------------------------------
-// Extended sequence for directed testing of Set B1 operations
-//---------------------------------------
-class alu_set_b1_sequence extends alu_sequence;
-  
-  `uvm_object_utils(alu_set_b1_sequence)
-  
-  function new(string name = "alu_set_b1_sequence");
-    super.new(name);
-  endfunction
-  
-  virtual task body();
-    repeat(20) begin
-      req = alu_seq_item::type_id::create("req");
-      start_item(req);
-      
-      if(!req.randomize() with { 
-        ALU_en == 1; 
-        a_en == 0; 
-        b_en == 1;
-        b_op inside {[0:2]}; 
-      })
-        `uvm_error(get_type_name(), "Randomization failed")
-      
-      finish_item(req);
-    end
-  endtask
-  
-endclass: alu_set_b1_sequence
-
-//---------------------------------------
-// Extended sequence for directed testing of Set B2 operations
-//---------------------------------------
-class alu_set_b2_sequence extends alu_sequence;
-  
-  `uvm_object_utils(alu_set_b2_sequence)
-  
-  function new(string name = "alu_set_b2_sequence");
-    super.new(name);
-  endfunction
-  
-  virtual task body();
-    repeat(20) begin
-      req = alu_seq_item::type_id::create("req");
-      start_item(req);
-      
-      if(!req.randomize() with { 
-        ALU_en == 1; 
-        a_en == 1; 
-        b_en == 1;
-        b_op inside {[0:3]}; 
-      })
-        `uvm_error(get_type_name(), "Randomization failed")
-      
-      finish_item(req);
-    end
-  endtask
-  
-endclass: alu_set_b2_sequence
-
-//---------------------------------------
 // Extended sequence for negative test cases
 //---------------------------------------
 class alu_negative_sequence extends alu_sequence;

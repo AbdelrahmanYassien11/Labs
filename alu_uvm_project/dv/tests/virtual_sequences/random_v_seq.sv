@@ -1,4 +1,3 @@
-
 class random_v_seq extends base_v_seq;
   alu_sequence   alu_seq;  
 

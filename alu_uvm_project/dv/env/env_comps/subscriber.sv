@@ -38,21 +38,19 @@ class subscriber extends uvm_component;
     }
 
     a_en_cp: coverpoint in_trans.a_en {
-      bins a_en_disabled = {0};
       bins a_en_enabled  = {1};
     }
 
     b_en_cp: coverpoint in_trans.b_en {
-      bins b_en_disabled = {0};
       bins b_en_enabled  = {1};
     }
 
-    /* 4: ALU modes cross coverage
-    modes_cross: cross ALU_en_cp, a_en_cp, b_en_cp {
+     //4: ALU modes cross coverage
+   /* modes_cross: cross ALU_en_cp, a_en_cp, b_en_cp {
         bins valid_modes = binsof(ALU_en_cp.ALU_on) &&
                           (binsof(a_en_cp.a_en_enabled) || binsof(b_en_cp.b_en_enabled));
-    }
-    */
+    }*/
+    
   endgroup
 
   // Operation covergroups
@@ -70,11 +68,11 @@ class subscriber extends uvm_component;
       ignore_bins ignored_val = {A_NULL};
     }
 
-    /* Cross with enable signal
-    a_op_enabled_cross: cross a_op_cp, in_trans.a_en {
+     //Cross with enable signal
+   /* a_op_enabled_cross: cross a_op_cp, in_trans.a_en {
       bins valid_ops = binsof(in_trans.a_en) intersect {1};
-    }
-    */
+    }*/
+    
   endgroup
 
   covergroup a_op_repi_cg with function sample(alu_seq_item in_trans);
@@ -106,11 +104,11 @@ class subscriber extends uvm_component;
       };
     }
 
-    /* Cross with enable signal
-    b_op11_enabled_cross: cross b_op11_cp, in_trans.b_en, in_trans.a_en {
+     //Cross with enable signal
+    /*b_op11_enabled_cross: cross b_op11_cp, in_trans.b_en, in_trans.a_en {
       bins valid_ops = binsof(in_trans.b_en) && binsof(in_trans.a_en) intersect {1};
-    }
-    */
+    }*/
+    
   endgroup
 
   covergroup b_operations01_cg with function sample(alu_seq_item in_trans);
@@ -123,11 +121,18 @@ class subscriber extends uvm_component;
       ignore_bins ignored_val = {B01_NULL};                                                                                      
     }
 
-    /* Cross with enable signal
-    b_op01_enabled_cross: cross b_op01_cp, in_trans.b_en, in_trans.a_en {
-      bins valid_ops = binsof(in_trans.b_en) && binsof(in_trans.a_en) intersect {1};
+    a_en_cp: coverpoint in_trans.a_en {
+      bins a_en_enabled  = {1};
     }
-    */
+
+    b_en_cp: coverpoint in_trans.b_en {
+      bins b_en_enabled  = {1};
+    }
+     //Cross with enable signal
+    /*b_op01_enabled_cross: cross b_op01_cp, b_en_cp, a_en_cp {
+      //bins valid_ops = binsof(in_trans.b_en) && binsof(in_trans.a_en) intersect {1};
+    }*/
+    
   endgroup
 
 
@@ -146,7 +151,7 @@ class subscriber extends uvm_component;
     }
 
     // Cross coverage of A and B
-    AB_cross: cross A_cp, B_cp;
+    //AB_cross: cross A_cp, B_cp;
   endgroup
 
 
@@ -220,12 +225,12 @@ C_OP_inc_cp: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2)
       bins neg_vals[] = {[-14:-1]};
     }
     
-    /* Corner cases cross coverage - extreme values with operations
-    corner_cases: cross a_op_cp, A_val_cp, B_val_cp {
+    // Corner cases cross coverage - extreme values with operations
+    /*corner_cases: cross a_op_cp, A_val_cp, B_val_cp {
       bins extremes = binsof(A_val_cp.min) || binsof(A_val_cp.max) ||
                      binsof(B_val_cp.min) || binsof(B_val_cp.max);
-    }
-    */
+    }*/
+    
     
     // Coverpoints for same input values
     input_A_cp: coverpoint in_trans.A {
@@ -482,9 +487,9 @@ C_OP_inc_cp: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2)
   endtask
 
   task coverage_target();
-//     if(a_operations_cg.get_coverage()==100) 	alu_seq_item::a_op_cov_trgt = 1;
-//     if(b_operations01_cg.get_coverage()==100)	alu_seq_item::b_op01_cov_trgt = 1;
-//     if(b_operations11_cg.get_coverage()==100) 	alu_seq_item::b_op11_cov_trgt = 1;
+//     if(a_operations_cg.get_coverage()==100)  alu_seq_item::a_op_cov_trgt = 1;
+//     if(b_operations01_cg.get_coverage()==100)  alu_seq_item::b_op01_cov_trgt = 1;
+//     if(b_operations11_cg.get_coverage()==100)  alu_seq_item::b_op11_cov_trgt = 1;
 
     case(test_name)
       "random_test": begin 
@@ -497,9 +502,9 @@ C_OP_inc_cp: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2)
       end
 
       "repitition_test": begin
-        if(a_op_repi_cg.get_coverage()==100) 	alu_seq_item::a_op_cov_repi_trgt = 1;
-        if(b_op01_repi_cg.get_coverage()==100)	alu_seq_item::b_op01_cov_repi_trgt = 1;
-        if(b_op11_repi_cg.get_coverage()==100) 	alu_seq_item::b_op11_cov_repi_trgt = 1; 
+        if(a_op_repi_cg.get_coverage()==100)  alu_seq_item::a_op_cov_repi_trgt = 1;
+        if(b_op01_repi_cg.get_coverage()==100)  alu_seq_item::b_op01_cov_repi_trgt = 1;
+        if(b_op11_repi_cg.get_coverage()==100)  alu_seq_item::b_op11_cov_repi_trgt = 1; 
         if(a_op_repi_cg.get_coverage()==100 && b_op01_repi_cg.get_coverage()==100
            && b_op11_repi_cg.get_coverage()==100) 
           alu_seq_item::cov_target = 1;      

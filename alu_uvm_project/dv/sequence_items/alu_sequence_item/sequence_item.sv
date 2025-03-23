@@ -114,9 +114,9 @@ class alu_seq_item extends uvm_sequence_item;
  //Constraints to avoid the output reaching -32 value
  //-----------------------------------------------------
   // to avoid C = -32 
-  constraint c_not_all_ones_xnor { ((a_op == A_XNOR) || (b_op == B11_XNOR && a_en && b_en)) -> (A^B) != 5'b11111;}
+  constraint c_not_all_ones_xnor { ((a_op == A_XNOR && a_en && ~b_en) || (b_op == B11_XNOR && a_en && b_en)) -> (A^B) != 5'b11111;}
 
   // to avoid C = -32 
-  constraint c_not_all_ones_nand { (b_op == B01_NAND && !a_en && b_en) -> (A&B) != 5'b11111;}
+  constraint c_not_all_ones_nand { (b_op == B01_NAND && ~a_en && b_en) -> (A&B) != 5'b11111;}
 
 endclass

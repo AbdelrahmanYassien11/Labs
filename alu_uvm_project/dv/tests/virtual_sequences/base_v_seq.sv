@@ -1,4 +1,3 @@
-// `include "reset_sequence.sv" 
 class base_v_seq extends uvm_sequence;
   reset_sequence rst_seq;
     
@@ -13,8 +12,6 @@ class base_v_seq extends uvm_sequence;
   function new (string name = "base_v_seq");
     super.new(name);
   endfunction
-
-
 
  virtual task body();
     `uvm_info(get_type_name(), "base_v_seq: Inside Body", UVM_LOW);

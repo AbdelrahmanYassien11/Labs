@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-// 									Reference model               
+// 	Predictor - Predicts the expected result with the given input stimulus             
 //------------------------------------------------------------------------------ 
 class predictor extends uvm_subscriber #(alu_seq_item);
 
@@ -130,7 +130,7 @@ class predictor extends uvm_subscriber #(alu_seq_item);
       A_AND2: return {1'b0, trans.A} & {1'b0, trans.B};
       A_OR:   return {1'b0, trans.A} | {1'b0, trans.B};
       A_XNOR: return ~({1'b0, trans.A} ^ {1'b0, trans.B});
-      A_NULL: return 6'd0;
+      A_NULL: return prev_C;
       default: return prev_C;
     endcase
   endfunction : compute_set_a
@@ -143,7 +143,7 @@ class predictor extends uvm_subscriber #(alu_seq_item);
       2'b00: return ~({1'b0, trans.A} & {1'b0, trans.B});          // NAND - zero extend first
       2'b01: return {trans.A[4], trans.A} + {trans.B[4], trans.B};  // ADD1 - arithmetic
       2'b10: return {trans.A[4], trans.A} + {trans.B[4], trans.B};  // ADD2 - arithmetic
-      2'b11: return 6'd0;                                          // NULL operation
+      2'b11: return prev_C;                                          // NULL operation
       default: return prev_C;
     endcase
   endfunction : compute_set_b1

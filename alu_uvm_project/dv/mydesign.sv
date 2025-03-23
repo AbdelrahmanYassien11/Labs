@@ -58,6 +58,11 @@ module ALU #(parameter INPUT_WIDTH, OUTPUT_WIDTH, A_OP_WIDTH, B_OP_WIDTH) (
   reg signed [5:0] result;
   reg signed [5:0] prev_result;
 
+  always@(negedge rst_n) begin
+    if(~rst_n) begin
+      prev_result = 0;
+    end
+  end
 
   // ALU Operation Logic - Determines the result based on the enabled operation set
   always @(*) begin
@@ -122,12 +127,6 @@ module ALU #(parameter INPUT_WIDTH, OUTPUT_WIDTH, A_OP_WIDTH, B_OP_WIDTH) (
     end
     else begin
       C <= result; // Store computed result
-    end
-  end
-
-  always@(negedge rst_n) begin
-    if(~rst_n) begin
-      prev_result = 0;
     end
   end
 

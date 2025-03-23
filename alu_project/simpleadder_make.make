@@ -30,7 +30,7 @@ compile: $(DESIGN_FILE) $(TESTBENCH_FILE)
 # Run the simulation and dump the VPD file with the test-specific name
 run: compile
 	@echo "Running simulation for test: $(TEST_NAME)..."
-	./$(SIM_EXEC) $(COVERAGE_FLAGS) +$(TEST_NAME) $(VPD_FLAGS)
+	./$(SIM_EXEC) $(COVERAGE_FLAGS) +$(TEST_NAME) $(VPD_FLAGS) -gui
 	@echo "Simulation complete. VPD file dumped to $(OUTPUT_DIR)/$(VPD_FILE)."
 
 # Check if user wants to use Verdi or DVE

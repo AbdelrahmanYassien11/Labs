@@ -9,10 +9,11 @@
 +incdir+sequences
 +incdir+tests/virtual_sequences
 +incdir+tests
-alu_interface/alu_interface.sv
-rst_interface/rst_interface.sv
 rst_uvm_pkg.sv
 alu_uvm_pkg.sv
-alu_verification_pkg.sv
+alu_interface/alu_interface.sv
+rst_interface/rst_interface.sv
+sva_helper_pkg.sv
+sva_interface.sv
 alu_top_tb.sv
 

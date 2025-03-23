@@ -1,9 +1,19 @@
 interface alu_if (input logic clk);
 
+  import alu_uvm_pkg::*;
+  //-----------------------------------------------
+  //declaring the enums for different input states
+  //-----------------------------------------------
+  OP_MODE_t       OP_MODE_o;
+  ALU_EN_STATE_t  ALU_EN_STATE_o;
+  OP_A_t          OP_A_o;
+  OP_B01_t        OP_B01_o;
+  OP_B11_t        OP_B11_o;
+
+
   //---------------------------------------
   //declaring the signals
   //---------------------------------------
-
   logic          ALU_en;
   logic          a_en;
   logic          b_en;
@@ -57,5 +67,58 @@ interface alu_if (input logic clk);
 
         modport MONITOR (clocking monitor_cb, input clk);
 
+
+
+  always @(*) begin
+    if(~ALU_en) begin
+      ALU_EN_STATE_o = ALU_OFF;
+    end
+    else if(ALU_en) begin
+      ALU_EN_STATE_o = ALU_ON;
+      if(~a_en & ~b_en) begin
+        OP_MODE_o = MODE_IDLE;
+      end
+      else if ( a_en &  ~b_en) begin
+        OP_MODE_o = MODE_A;
+        case(a_op)
+          A_ADD:    OP_A_o = A_ADD;
+          A_SUB:    OP_A_o = A_SUB;
+          A_XOR:    OP_A_o = A_XOR;
+          A_AND1:   OP_A_o = A_AND1;
+          A_AND2:   OP_A_o = A_AND2;
+          A_OR:     OP_A_o = A_OR;
+          A_XNOR:   OP_A_o = A_XNOR;
+          A_NULL:   OP_A_o = A_NULL;
+          default:  $error("op_a X propagation");
+        endcase // op_a
+      end
+      else if (~a_en &  b_en) begin
+        OP_MODE_o = MODE_B01;
+        case(b_op)
+          B01_NAND:   OP_B01_o = B01_NAND;
+          B01_ADD1:   OP_B01_o = B01_ADD1;
+          B01_ADD2:   OP_B01_o = B01_ADD2;
+          B01_NULL:   OP_B01_o = B01_NULL;
+          default:    $error("op_b01 X propagation");
+        endcase              
+      end
+      else if ( a_en &  b_en) begin
+        OP_MODE_o = MODE_B11;
+        case(b_op)
+          B11_XOR:     OP_B11_o = B11_XOR;
+          B11_XNOR:    OP_B11_o = B11_XNOR;
+          B11_A_SUB_1: OP_B11_o = B11_A_SUB_1;
+          B11_B_ADD_2: OP_B11_o = B11_B_ADD_2;
+          default:     $error("op_b11 X propagation");
+        endcase      
+      end
+      else begin
+        $error("a_en & b_en X propagation");
+      end      
+    end
+    else begin
+      $error("ALU_en X propagation");
+    end
+  end
     
 endinterface
