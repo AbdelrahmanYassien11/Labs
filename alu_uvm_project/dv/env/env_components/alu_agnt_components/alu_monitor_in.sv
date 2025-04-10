@@ -83,7 +83,7 @@ class alu_monitor_in extends uvm_monitor;
       trans_collected.ALU_en = `MONITOR_IF.ALU_en;
       trans_collected.a_en   = `MONITOR_IF.a_en;
       trans_collected.b_en   = `MONITOR_IF.b_en;
-      trans_collected.a_op   = OP_A_t'(`MONITOR_IF.a_op);
+      trans_collected.a_op   = `MONITOR_IF.a_op;
       trans_collected.b_op   = `MONITOR_IF.b_op;
       trans_collected.A      = `MONITOR_IF.A;
       trans_collected.B      = `MONITOR_IF.B;

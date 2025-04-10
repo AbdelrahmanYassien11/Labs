@@ -5,7 +5,7 @@
 module alu_top_tb;
 
   import uvm_pkg::*;
-  `include "uvm_macros.svh"
+  //`include "uvm_macros.svh"
   // import rst_uvm_pkg::*;
   import alu_uvm_pkg::*;
 
@@ -89,13 +89,15 @@ module alu_top_tb;
   test_config t_cfg;
   initial begin
     no_of_resets = 4;
-    test_timeout = 1000000;
-  // Create and initialize test config
-  t_cfg = test_config::type_id::create("t_cfg");
-  t_cfg.set_config(UVM_ACTIVE, UVM_ACTIVE, rst_intf, alu_intf, no_of_resets, test_timeout);
-  
-  // Set in config DB
-  uvm_config_db#(test_config)::set(uvm_root::get(),"uvm_test_top","test_cfg",t_cfg);
+    test_timeout = 5000;
+
+    // Create and initialize test config
+    t_cfg = test_config::type_id::create("t_cfg");
+    t_cfg.set_config(UVM_ACTIVE, UVM_ACTIVE, rst_intf, alu_intf, no_of_resets, test_timeout);
+    
+    // Set in config DB
+    uvm_config_db#(test_config)::set(uvm_root::get(),"uvm_test_top","test_cfg",t_cfg);
+
     //enable wave dump
     $dumpfile("dump.vcd"); 
     $dumpvars;
@@ -115,7 +117,7 @@ module alu_top_tb;
     #1ns;
     if(!(uvm_config_db#(string)::get(null,"uvm_test_top.env_h","test_name",test_name)))
       `uvm_fatal("ALU_TOP_TB", "COULDN'T GET TEST NAME")
-    
+      
     // Select VPD file based on runtime UVM_TESTNAME
     case (test_name)
       "random_test":      vpd_file = "output/random_test.vpd";
@@ -123,6 +125,7 @@ module alu_top_tb;
       "error_test":       vpd_file = "output/error_test.vpd";
       default :           vpd_file = "output/random_test.vpd";
     endcase
+
     // Open the VPD file and start dumping signals
     $vcdplusfile(vpd_file);
     $vcdpluson;

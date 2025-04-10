@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//                    sva_interface.sv
+//				            sva_interface.sv
 //-------------------------------------------------------------------------
 interface sva_if(alu_if alu_intf, rst_if rst_intf, input logic rst_n, input logic clk);
   import alu_uvm_pkg::*;
@@ -24,7 +24,7 @@ interface sva_if(alu_if alu_intf, rst_if rst_intf, input logic rst_n, input logi
                         $past(alu_intf.A), $past(alu_intf.B)) &&
 
     // Then check for expected output value based on the mode
-    alu_intf.C == compute_result(rst_intf.rst_n, $past(alu_intf.ALU_EN_STATE_o), $past(alu_intf.OP_MODE_o), $past(alu_intf.OP_A_o), 
+    alu_intf.C == compute_result(1, $past(alu_intf.ALU_EN_STATE_o), $past(alu_intf.OP_MODE_o), $past(alu_intf.OP_A_o), 
                                 $past(alu_intf.OP_B01_o), $past(alu_intf.OP_B11_o), 
                                 $past(alu_intf.A), $past(alu_intf.B));
   endproperty
@@ -37,13 +37,15 @@ interface sva_if(alu_if alu_intf, rst_if rst_intf, input logic rst_n, input logi
   // Property to check the output's behavior after reset
   property output_during_reset_p;
     @(negedge rst_n)
-    1'b1 |=> @(posedge clk) (alu_intf.C == 0);
+    1'b1 |=> @(posedge clk) (alu_intf.C == compute_result(0, $past(alu_intf.ALU_EN_STATE_o), $past(alu_intf.OP_MODE_o), $past(alu_intf.OP_A_o), 
+                                $past(alu_intf.OP_B01_o), $past(alu_intf.OP_B11_o), 
+                                $past(alu_intf.A), $past(alu_intf.B)));
   endproperty
   
   a_output_update: assert property(p_output_update)
     //$info("\033[32m ALU output updated correctly based on operation mode");
     else $error("\033[31m Invalid ALU computation result detected  en_a %d , en_b %d , a_op %d , b_op %d ,A %0d, B%0d, actual_c %0d, expected_c %0d", alu_intf.a_en , alu_intf.b_en,alu_intf.a_op,alu_intf.b_op,alu_intf.A, alu_intf.B,alu_intf.C,
-      compute_result(rst_intf.rst_n,$past(alu_intf.ALU_EN_STATE_o), $past(alu_intf.OP_MODE_o), $past(alu_intf.OP_A_o), 
+      compute_result(1, $past(alu_intf.ALU_EN_STATE_o), $past(alu_intf.OP_MODE_o), $past(alu_intf.OP_A_o), 
                                 $past(alu_intf.OP_B01_o), $past(alu_intf.OP_B11_o), 
                                 $past(alu_intf.A), $past(alu_intf.B)));
 
@@ -421,15 +423,6 @@ interface sva_if(alu_if alu_intf, rst_if rst_intf, input logic rst_n, input logi
   c_consecutive_ops_set_b2: cover property(@(alu_intf.driver_cb) seq_consecutive_ops_set_b2);
     //$info("Covered: 3 consecutive Set B2 operations with changing opcodes");
 
-
-
-  // Property to check the output's behavior after reset
-  property p_output_during_reset;
-    @(negedge rst_n)
-    1'b1 |=> @(posedge clk) (alu_intf.C == compute_result(rst_intf.rst_n, $past(alu_intf.ALU_EN_STATE_o), $past(alu_intf.OP_MODE_o), $past(alu_intf.OP_A_o), 
-                                $past(alu_intf.OP_B01_o), $past(alu_intf.OP_B11_o), 
-                                $past(alu_intf.A), $past(alu_intf.B)));
-  endproperty
 
   // Assertion to validate the output's behavior after reset
   // Note: This assertion should not be disabled when rst_n is low

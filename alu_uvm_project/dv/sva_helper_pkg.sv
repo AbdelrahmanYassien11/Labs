@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//                    sva_helper_pkg
+//				            sva_helper_pkg
 //-------------------------------------------------------------------------
 package sva_helper_pkg;
   import rst_uvm_pkg::*;
@@ -14,12 +14,12 @@ OP_B01_t        OP_B01_o;
 OP_B11_t        OP_B11_o;
 
 
-typedef logic        [A_OP_WIDTH-1:0] a_op_t;
-typedef logic        [B_OP_WIDTH-1:0] b_op_t;
-typedef logic signed [INPUT_WIDTH-1:0] operand_t;
-typedef logic signed [OUTPUT_WIDTH-1:0] result_t;
+typedef bit        [A_OP_WIDTH-1:0] a_op_t;
+typedef bit        [B_OP_WIDTH-1:0] b_op_t;
+typedef bit signed [INPUT_WIDTH-1:0] operand_t;
+typedef bit signed [OUTPUT_WIDTH-1:0] result_t;
 
-bit signed [OUTPUT_WIDTH-1:0] prev_result;
+bit signed [OUTPUT_WIDTH-1:0] result, prev_result;
 
 //---------------------------------------
 // Assertion counters
@@ -41,8 +41,8 @@ int unsigned forbidden_result_count = 0;
 // Helper Functions
 //---------------------------------------
 // Result computation functions
-function result_t compute_result(
-  input bit rst_n,
+function automatic result_t compute_result(
+  input bit rst_an,
   input ALU_EN_STATE_t ALU_EN_STATE,
   input OP_MODE_t OP_MODE,
   input OP_A_t         OP_A,
@@ -52,20 +52,13 @@ function result_t compute_result(
   input operand_t A,
   input operand_t B
 );
-  result_t result;
-if(~rst_n) begin
+  //result_t result;
+if(~rst_an) begin
 result = 0;
-prev_result = 0;
 end
 else begin
-  if (ALU_EN_STATE == ALU_OFF) begin
-    return prev_result;
-  end
-  else if(ALU_EN_STATE == ALU_ON) begin
-    if(OP_MODE == MODE_IDLE)begin
-      return prev_result;
-    end
-    else if (OP_MODE == MODE_A) begin
+  if(ALU_EN_STATE == ALU_ON) begin
+    if (OP_MODE == MODE_A) begin
       case(OP_A)
         A_ADD:    result =   {A[4],A} + {B[4],B};
         A_SUB:    result =   {A[4],A} - {B[4],B};
@@ -74,7 +67,7 @@ else begin
         A_AND2:   result =   {1'b0,A} & {1'b0,B};
         A_OR:     result =   {1'b0,A} | {1'b0,B};
         A_XNOR:   result = ~({1'b0,A} ^ {1'b0,B});
-        A_NULL:   result = prev_result;
+        A_NULL:   result = 6'b0;
         default:  $error("[SVA_HELPER_PKG] X proapgation B_op11 value");
       endcase
     end
@@ -83,7 +76,7 @@ else begin
         B01_NAND:   result = ~({1'b0,A} & {1'b0,B});
         B01_ADD1:   result =   {A[4],A} + {B[4],B};
         B01_ADD2:   result =   {A[4],A} + {B[4],B};
-        B01_NULL:   result = prev_result;
+        B01_NULL:   result = 6'b0;
         default:    $error("[SVA_HELPER_PKG] X proapgation B_op01 value");
       endcase
     end
@@ -96,19 +89,9 @@ else begin
         default:     $error("[SVA_HELPER_PKG] X propagation B_op11 value");
       endcase
     end
-    else begin
-      $error("[SVA_HELPER_PKG] X propagation Mode inputs");
-    end
-    prev_result = result;
-    // $display("result %0d",result);
-    return result;
-  end
-  else begin
-    $error("[SVA_HELPER_PKG] X propagation ALU_EN inputs");
-    prev_result = result;
-    return result;
-  end
+ end
 end
+return result;
 endfunction
 
 // Format an error message for assertion failures
@@ -162,7 +145,7 @@ function automatic bit is_forbidden_result(
   input operand_t B
 );
   result_t result;
-  result = compute_result(1,ALU_EN_STATE, OP_MODE, OP_A, OP_B01, OP_B11, A, B);
+  result = compute_result(1, ALU_EN_STATE, OP_MODE, OP_A, OP_B01, OP_B11, A, B);
 
   // Determine which operating mode we're in
   if (OP_MODE == MODE_A) begin

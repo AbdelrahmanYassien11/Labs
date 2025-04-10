@@ -25,8 +25,7 @@ class error_sequence extends uvm_sequence #(alu_seq_item);
     // 1. NULL_OP for op_a
     // 2. NULL_OP for op_b1
     // 3. XOR giving -32
-    `uvm_info(get_type_name(), "1. NULL_OP for op_a - completed", UVM_LOW)
-
+    `uvm_info(get_type_name(), "2. NULL_OP for op_a - completed", UVM_LOW)
     `uvm_do_with(req, {
       ALU_en == 1;
       a_en == 1;
@@ -34,7 +33,7 @@ class error_sequence extends uvm_sequence #(alu_seq_item);
       a_op == A_NULL;
     })
 
-    `uvm_info(get_type_name(), "2. NULL_OP for op_b1 - completed", UVM_LOW)
+    `uvm_info(get_type_name(), "3. NULL_OP for op_b1 - completed", UVM_LOW)
     `uvm_do_with(req, {
       ALU_en == 1;
       a_en == 0;
@@ -43,7 +42,7 @@ class error_sequence extends uvm_sequence #(alu_seq_item);
     })
 
 
-    `uvm_info(get_type_name(), "3. XNOR op_a - completed", UVM_LOW)
+    `uvm_info(get_type_name(), "4. XNOR op_a - completed", UVM_LOW)
 
     `uvm_do_with(req, {
       ALU_en == 1;
@@ -54,7 +53,7 @@ class error_sequence extends uvm_sequence #(alu_seq_item);
       B == 5'b00000; //
     })
     // 4. NAND giving -32
-    `uvm_info(get_type_name(), "4. NAND op_b1 - completed", UVM_LOW)
+    `uvm_info(get_type_name(), "5. NAND op_b1 - completed", UVM_LOW)
 
     `uvm_do_with(req, {
       ALU_en == 1;
@@ -65,7 +64,7 @@ class error_sequence extends uvm_sequence #(alu_seq_item);
       B == 5'b11111;
     })
     // 5. ADD op_a gives -32
-    `uvm_info(get_type_name(), "5. ADD op_a gives -32 - completed", UVM_LOW)
+    `uvm_info(get_type_name(), "6. ADD op_a gives -32 - completed", UVM_LOW)
 
     `uvm_do_with(req, {
       ALU_en == 1;
@@ -76,7 +75,7 @@ class error_sequence extends uvm_sequence #(alu_seq_item);
       B == -16; // -16
     })
     // 6a. ADD1 op_b gives -32
-    `uvm_info(get_type_name(), "6a. ADD1 op_b1 gives -32 - completed", UVM_LOW)
+    `uvm_info(get_type_name(), "7a. ADD1 op_b1 gives -32 - completed", UVM_LOW)
 
     `uvm_do_with(req, {
       ALU_en == 1;
@@ -87,7 +86,7 @@ class error_sequence extends uvm_sequence #(alu_seq_item);
       B == 5'b10000; // -16
     })
     // 6b. ADD2 op_b gives -32
-    `uvm_info(get_type_name(), "6b. ADD2 op_b1 gives -32 - completed", UVM_LOW)
+    `uvm_info(get_type_name(), "7b. ADD2 op_b1 gives -32 - completed", UVM_LOW)
 
     `uvm_do_with(req, {
       ALU_en == 1;
@@ -98,7 +97,7 @@ class error_sequence extends uvm_sequence #(alu_seq_item);
       B == 5'b10000; // -16
     })
     // 7. SUB, op_a gives -32
-    `uvm_info(get_type_name(), "7. SUB op_a gives -32 - completed", UVM_LOW)
+    `uvm_info(get_type_name(), "8. SUB op_a gives -32 - completed", UVM_LOW)
     // ========================================
     `uvm_do_with(req, {
       ALU_en == 1;
@@ -109,7 +108,7 @@ class error_sequence extends uvm_sequence #(alu_seq_item);
       B == 5'b01111; // 15
     })
     // 8. A_SUB_1 gives -17
-    `uvm_info(get_type_name(), "8. A_SUB_1 op_b2 gives -17 - completed", UVM_LOW)
+    `uvm_info(get_type_name(), "9. A_SUB_1 op_b2 gives -17 - completed", UVM_LOW)
 
     `uvm_do_with(req, {
       ALU_en == 1;
@@ -120,7 +119,7 @@ class error_sequence extends uvm_sequence #(alu_seq_item);
       B != 0; 
     })
     // 9. B_ADD_2 gives -14
-    `uvm_info(get_type_name(), "9. B_ADD_2 op_b2  gives -14 - completed", UVM_LOW)
+    `uvm_info(get_type_name(), "10. B_ADD_2 op_b2  gives -14 - completed", UVM_LOW)
 
     `uvm_do_with(req, {
       ALU_en == 1;

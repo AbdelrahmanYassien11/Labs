@@ -22,7 +22,7 @@ class alu_seq_item extends uvm_sequence_item;
   rand bit                            ALU_en;
   rand bit                            a_en;
   rand bit                            b_en;
-  rand OP_A_t                         a_op;
+  rand bit         [A_OP_WIDTH-1:0]   a_op;
   rand bit         [B_OP_WIDTH-1:0]   b_op;
   rand bit  signed [INPUT_WIDTH-1:0]  A;
   rand bit  signed [INPUT_WIDTH-1:0]  B;
@@ -45,6 +45,7 @@ class alu_seq_item extends uvm_sequence_item;
   `uvm_field_int(a_en,UVM_ALL_ON)
   `uvm_field_int(b_en,UVM_ALL_ON)
   `uvm_field_int(b_op,UVM_ALL_ON)
+  `uvm_field_int(a_op,UVM_ALL_ON)
   `uvm_object_utils_end
 
   //---------------------------------------
@@ -70,7 +71,7 @@ class alu_seq_item extends uvm_sequence_item;
     end
     else if (a_en && !b_en) begin
       OP_MODE_e = MODE_A;
-      OP_A_e = a_op;
+      OP_A_e = OP_A_t'(a_op);
     end
     else if (!a_en && b_en) begin
       OP_MODE_e = MODE_B01;

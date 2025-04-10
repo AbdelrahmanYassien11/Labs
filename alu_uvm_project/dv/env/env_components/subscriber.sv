@@ -1,9 +1,145 @@
+covergroup A_cg_df(input int signed i, input alu_seq_item cov);
+	option.weight = ((i == -16)? 0:1);
+   	option.name = $sformatf("df = %0d",i);
+   	option.per_instance = 1;
+    option.goal = 50;
+   	df: coverpoint cov.A iff (cov.ALU_EN_STATE_e == ALU_ON) {
+   		bins A[] = {i};
+			ignore_bins A_ignored[] = {-16};
+   	}
+endgroup : A_cg_df
+
+covergroup B_cg_df(input int signed i, input alu_seq_item cov);
+   	option.weight = ((i == -16)? 0:1);
+   	option.name = $sformatf("df = %0d",i);
+   	option.per_instance = 1;
+    option.goal = 50;   	
+   	df: coverpoint cov.B iff (cov.ALU_EN_STATE_e == ALU_ON) {
+   		bins B[] = {i};
+			ignore_bins B_ignored[] = {-16};
+   	}
+endgroup : B_cg_df
+
+covergroup A_op_cg_df(input int i, ref alu_seq_item cov);
+	option.weight = ((i == 7)? 0:1);
+	option.name = $sformatf("df = %0d",i);
+	option.per_instance = 1;
+	df: coverpoint cov.a_op iff ((cov.OP_MODE_e == MODE_A) && (cov.ALU_EN_STATE_e == ALU_ON)) {
+		bins A_op[] = {i};
+		ignore_bins A_op_ignored[] = {7};
+	}
+endgroup : A_op_cg_df
+
+covergroup A_op_cg_dt(input int i, input int k , input alu_seq_item cov);
+	option.weight = ((k == 7 || i == 7)? 0:1);
+	option.name = $sformatf("dt %0d => %0d", i, k);
+   	option.per_instance = 1;
+   	dt: coverpoint cov.a_op iff ((cov.OP_MODE_e == MODE_A) && (cov.ALU_EN_STATE_e == ALU_ON)) {
+   		bins A_op[] = (i => k);
+			ignore_bins A_op_ignored1[] = (i => 7);
+   		ignore_bins A_op_ignored2[] = (7 => k);
+   	}	
+endgroup : A_op_cg_dt
+
+covergroup B_op01_cg_df(input int i, input alu_seq_item cov);
+	option.weight = ((i == 3)? 0:1);
+	option.name   = $sformatf("df %0d",i);
+	option.per_instance = 1;
+	df: coverpoint cov.b_op iff ((cov.OP_MODE_e == MODE_B01) && (cov.ALU_EN_STATE_e == ALU_ON)) {
+		bins B_op[] = {i};
+		ignore_bins B_op_ignored[] = {3};
+	}
+endgroup : B_op01_cg_df
+
+covergroup B_op01_cg_dt(input int i, input int k , input alu_seq_item cov);
+	option.weight = ((k == 3 || i == 3)? 0:1);
+	option.name = $sformatf("dt %0d => %0d", i, k);
+   	option.per_instance = 1;
+   	dt: coverpoint cov.b_op iff ((cov.OP_MODE_e == MODE_B01) && (cov.ALU_EN_STATE_e == ALU_ON)) {
+   		bins B_op[] = (i => k);
+			ignore_bins B_op_ignored1[] = (i => 3);
+   		ignore_bins B_op_ignored2[] = (3 => k);
+   	}
+endgroup : B_op01_cg_dt
+
+covergroup B_op11_cg_df(input int i, input alu_seq_item cov);
+	option.name   = $sformatf("df %0d",i);
+	option.per_instance = 1;
+	df: coverpoint cov.b_op iff ((cov.OP_MODE_e == MODE_B11) && (cov.ALU_EN_STATE_e == ALU_ON)) {
+		bins B_op[] = {i};
+	}
+endgroup : B_op11_cg_df
+
+covergroup B_op11_cg_dt(input int i, input int k , input alu_seq_item cov);
+	option.name = $sformatf("dt %0d => %0d", i, k);
+   	option.per_instance = 1;
+   	dt: coverpoint cov.b_op iff ((cov.OP_MODE_e == MODE_B11) && (cov.ALU_EN_STATE_e == ALU_ON)) {
+   		bins B_op[] = (i => k);
+   	}
+endgroup : B_op11_cg_dt
+
+covergroup A_B_en_cg_df(input int i, input alu_seq_item cov);
+	option.name = $sformatf("df = '{a_en,b_en}%0b",i);
+	option.per_instance = 1;
+	df: coverpoint {cov.a_en,cov.b_en} iff (cov.ALU_EN_STATE_e == ALU_ON) {
+		bins A_B_en[] = {i};
+	}
+endgroup : A_B_en_cg_df
+
+covergroup A_B_en_cg_dt(input int i, input int k, input alu_seq_item cov);
+	option.name = $sformatf("dt '{a_en,b_en}%0b => {a_en,b_en}%0b", i, k);
+	option.per_instance = 1;
+	df: coverpoint {cov.a_en,cov.b_en} iff (cov.ALU_EN_STATE_e == ALU_ON) {
+		bins A_B_en[] = (i => k);
+	}
+endgroup : A_B_en_cg_dt
+
+covergroup ALU_en_cg_df(input int i, input alu_seq_item cov);
+	option.name = $sformatf("df = %0d",i);
+	option.per_instance = 1;
+	df: coverpoint cov.ALU_en {
+		bins ALU_en[] = {i};
+	}
+endgroup : ALU_en_cg_df
+
+covergroup ALU_en_cg_dt(input int i, input int k, input alu_seq_item cov);
+	option.name = $sformatf("dt %0d => %0d",i, k);
+	option.per_instance = 1;
+	df: coverpoint cov.ALU_en {
+		bins ALU_en[] = (i => k);
+	}
+endgroup : ALU_en_cg_dt
+
+covergroup C_cg_df(input int signed i, input alu_seq_item cov);
+	option.weight = ((i == -32 )?0:1);
+	option.name = $sformatf("df = %0d",i);
+	option.per_instance = 1;
+  option.goal = 50;
+	df: coverpoint cov.C {
+		bins C[] = {i};
+		ignore_bins C_ignored    = {-32};
+	}
+endgroup : C_cg_df
+
+covergroup C_cg_dt(input int signed i, input int signed k, input alu_seq_item cov);
+	option.weight = ((i == -32 || k == -32)?0:1);
+	option.name = $sformatf("dt %0d => %0d", i, k);
+	option.per_instance = 1;
+	option.goal = 25;
+	df: coverpoint cov.C {
+		bins C[] = (i => k);
+		ignore_bins C_ignored1[] = (i => -32);
+		ignore_bins C_ignored2[] = (-32 => k);
+	}
+endgroup : C_cg_dt
+
+
 class subscriber extends uvm_component;
 
   //uvm_component test_name;
   string test_name;
   rst_seq_item reset_seq_h;
-  alu_seq_item output_cov_copied;
+  alu_seq_item output_cov_copied, input_cov_copied;;
   alu_seq_item input_item, output_item;
 
   //---------------------------------------
@@ -23,11 +159,29 @@ class subscriber extends uvm_component;
   // Transaction counter
   int count_trans;
 
-  // Previous operation signals for transitions
-  bit       prev_a_en;
-  bit       prev_b_en;
-  OP_A_t    prev_a_op;
-  bit [1:0] prev_b_op;
+  //instance base coverage
+	protected int signed j, z;
+
+	A_cg_df A_cg_df_vals [(2**INPUT_WIDTH)];
+	B_cg_df B_cg_df_vals [(2**INPUT_WIDTH)];
+
+	A_op_cg_df   A_op_cg_df_vals   [2**A_OP_WIDTH];
+	B_op01_cg_df B_op01_cg_df_vals [2**B_OP_WIDTH];
+	B_op11_cg_df B_op11_cg_df_vals [2**B_OP_WIDTH];
+
+	A_op_cg_dt A_op_cg_dt_vals [(2**A_OP_WIDTH)][(2**A_OP_WIDTH)];
+
+	B_op01_cg_dt B_op01_cg_dt_vals [(2**B_OP_WIDTH)][(2**B_OP_WIDTH)];
+	B_op11_cg_dt B_op11_cg_dt_vals [(2**B_OP_WIDTH)][(2**B_OP_WIDTH)];
+
+	A_B_en_cg_df A_B_en_cg_df_vals [2**(2*1)];
+	A_B_en_cg_dt A_B_en_cg_dt_vals [2**(2*1)][2**(2*1)];
+
+	ALU_en_cg_df ALU_en_cg_df_vals [2**1];
+	ALU_en_cg_dt ALU_en_cg_dt_vals [2**1][2**1];
+
+	C_cg_df C_cg_df_vals [(2**OUTPUT_WIDTH)];
+	C_cg_dt C_cg_dt_vals [(2**OUTPUT_WIDTH)][(2**OUTPUT_WIDTH)];
  
   // Coverage groups
   covergroup control_cg with function sample(alu_seq_item in_trans);
@@ -44,12 +198,6 @@ class subscriber extends uvm_component;
     b_en_cp: coverpoint in_trans.b_en {
       bins b_en_enabled  = {1};
     }
-
-     //4: ALU modes cross coverage
-   /* modes_cross: cross ALU_en_cp, a_en_cp, b_en_cp {
-        bins valid_modes = binsof(ALU_en_cp.ALU_on) &&
-                          (binsof(a_en_cp.a_en_enabled) || binsof(b_en_cp.b_en_enabled));
-    }*/
     
   endgroup
 
@@ -67,11 +215,6 @@ class subscriber extends uvm_component;
       };
       ignore_bins ignored_val = {A_NULL};
     }
-
-     //Cross with enable signal
-   /* a_op_enabled_cross: cross a_op_cp, in_trans.a_en {
-      bins valid_ops = binsof(in_trans.a_en) intersect {1};
-    }*/
     
   endgroup
 
@@ -103,11 +246,6 @@ class subscriber extends uvm_component;
         B11_B_ADD_2
       };
     }
-
-     //Cross with enable signal
-    /*b_op11_enabled_cross: cross b_op11_cp, in_trans.b_en, in_trans.a_en {
-      bins valid_ops = binsof(in_trans.b_en) && binsof(in_trans.a_en) intersect {1};
-    }*/
     
   endgroup
 
@@ -128,11 +266,6 @@ class subscriber extends uvm_component;
     b_en_cp: coverpoint in_trans.b_en {
       bins b_en_enabled  = {1};
     }
-     //Cross with enable signal
-    /*b_op01_enabled_cross: cross b_op01_cp, b_en_cp, a_en_cp {
-      //bins valid_ops = binsof(in_trans.b_en) && binsof(in_trans.a_en) intersect {1};
-    }*/
-    
   endgroup
 
 
@@ -149,9 +282,6 @@ class subscriber extends uvm_component;
       bins zero = {0};
       bins positive = {[1:15]};
     }
-
-    // Cross coverage of A and B
-    //AB_cross: cross A_cp, B_cp;
   endgroup
 
 
@@ -225,13 +355,6 @@ C_OP_inc_cp: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2)
       bins neg_vals[] = {[-14:-1]};
     }
     
-    // Corner cases cross coverage - extreme values with operations
-    /*corner_cases: cross a_op_cp, A_val_cp, B_val_cp {
-      bins extremes = binsof(A_val_cp.min) || binsof(A_val_cp.max) ||
-                     binsof(B_val_cp.min) || binsof(B_val_cp.max);
-    }*/
-    
-    
     // Coverpoints for same input values
     input_A_cp: coverpoint in_trans.A {
       bins values[] = {[-15:15]};
@@ -239,12 +362,6 @@ C_OP_inc_cp: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2)
     input_B_cp: coverpoint in_trans.B {
       bins values[] = {[-15:15]};
     }
-    
-    /* Cross coverage for same input values
-    same_inputs: cross input_A_cp, input_B_cp {
-      bins same_vals = binsof(input_A_cp.values) && binsof(input_B_cp.values) with (input_A_cp == input_B_cp);
-    }
-    */
     
     // Coverpoints for sign bits
     A_sign: coverpoint in_trans.A[4] {
@@ -257,44 +374,6 @@ C_OP_inc_cp: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2)
       bins neg = {1};  // Negative numbers (MSB = 1)
     }
     
-    /* Cross coverage for opposite signs with operation context
-    opposite_signs: cross A_sign, B_sign, a_op_cp {
-      bins add_opp_signs = binsof(a_op_cp.add_op) && 
-                          ((binsof(A_sign.pos) && binsof(B_sign.neg)) ||
-                           (binsof(A_sign.neg) && binsof(B_sign.pos)));
-                           
-      bins sub_opp_signs = binsof(a_op_cp.sub_op) && 
-                          ((binsof(A_sign.pos) && binsof(B_sign.neg)) ||
-                           (binsof(A_sign.neg) && binsof(B_sign.pos)));
-                           
-      ignore_bins same_signs = binsof(A_sign.pos) && binsof(B_sign.pos) ||
-                              binsof(A_sign.neg) && binsof(B_sign.neg);
-    }
-    */
-
-    /* Special arithmetic cases
-    arith_cases: cross A_val_cp, B_val_cp, a_op_cp {
-      // Addition and subtraction with zero
-      bins add_zero = binsof(a_op_cp.add_op) && binsof(A_val_cp.zero);
-      bins sub_zero = binsof(a_op_cp.sub_op) && binsof(B_val_cp.zero);
-      
-      // Operations with same numbers
-      bins same_nums = binsof(A_val_cp) && binsof(B_val_cp) with (A_val_cp == B_val_cp);
-      
-      // Operations with opposite numbers
-      bins opposite_nums = binsof(A_val_cp) && binsof(B_val_cp) with (A_val_cp == -B_val_cp);
-    }
-    */
-
-    /* Operation with extremes - corrected to cross with values
-    op_extremes: cross a_op_cp, A_val_cp {
-      bins op_with_max = binsof(a_op_cp) intersect {[A_ADD:A_OR]} &&
-                        binsof(A_val_cp.max);
-      bins op_with_min = binsof(a_op_cp) intersect {[A_ADD:A_OR]} &&
-                        binsof(A_val_cp.min);
-      ignore_bins null_ops = binsof(a_op_cp.null_op);
-    }
-    */
   endgroup
   
   covergroup error_cg with function sample(alu_seq_item in_trans, out_trans);
@@ -319,7 +398,7 @@ C_OP_inc_cp: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2)
       bins C_error = {-32}; 
     } 
     C_val_A_XNOR: coverpoint out_trans.C iff ((out_trans.OP_A_e == A_XNOR) && (out_trans.OP_MODE_e == MODE_A) && (out_trans.ALU_EN_STATE_e == ALU_ON )) {
-      bins C_error = {-32}; 
+      bins C_error = {32}; 
     } 
     C_val_B1_NAND: coverpoint out_trans.C iff ((out_trans.OP_B01_e == B01_NAND)  && (out_trans.OP_MODE_e == MODE_B01) && (out_trans.ALU_EN_STATE_e == ALU_ON )) {
       bins C_error = {-32}; 
@@ -330,10 +409,10 @@ C_OP_inc_cp: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2)
     C_val_B1_ADD2: coverpoint out_trans.C iff ((out_trans.OP_B01_e == B01_ADD2) && (out_trans.OP_MODE_e == MODE_B01) && (out_trans.ALU_EN_STATE_e == ALU_ON )){
       bins C_error = {-32}; 
     } 
-  C_val_B2_XNOR: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_XNOR) && (out_trans.OP_MODE_e == MODE_B11) && (out_trans.ALU_EN_STATE_e == ALU_ON )) {
+    C_val_B2_XNOR: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_XNOR) && (out_trans.OP_MODE_e == MODE_B11) && (out_trans.ALU_EN_STATE_e == ALU_ON )) {
     bins C_error = {-32};
     } 
-     C_val_B2_B_ADD_2: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2) && (out_trans.OP_MODE_e == MODE_B11)
+    C_val_B2_B_ADD_2: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2) && (out_trans.OP_MODE_e == MODE_B11)
                                                    && (out_trans.ALU_EN_STATE_e == ALU_ON )){
        bins  C_error = {-14};
     }
@@ -356,11 +435,14 @@ C_OP_inc_cp: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2)
 
     // Initialize counters
     count_trans = 0;
-
+		input_cov_copied = new();
+		output_cov_copied = new();
+		
     if(!(uvm_config_db#(string)::get(this,"","test_name",test_name)))
       `uvm_fatal(get_full_name, "Couldn't get TEST_NAME")
       
       `uvm_info(get_full_name(),$sformatf("TEST_NAME %s",test_name),UVM_LOW)
+
     // Create coverage groups
     case(test_name)
       "random_test": begin 
@@ -373,7 +455,45 @@ C_OP_inc_cp: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2)
         stability_cg = new();
         special_cases_cg = new();
         output_values_cg = new();
-      end
+
+        j = -(2**(INPUT_WIDTH-1));//-16
+        for (int i = 0; i < (2**(INPUT_WIDTH)) ; i++) begin //0 to 31
+          A_cg_df_vals[i] = new(j, input_cov_copied);
+          B_cg_df_vals[i] = new(j, input_cov_copied);
+          j = j + 1;
+        end
+
+        // j = -(2**(OUTPUT_WIDTH-1));//-32
+        // for (int i = 0; i < (2**(OUTPUT_WIDTH)) ; i++) begin
+        //   C_cg_df_vals[i] = new(j, output_cov_copied);
+        //   j = j + 1;
+        // end
+
+        // z = -(2**(OUTPUT_WIDTH-1));//-32
+        // for (int i = 0; i < (2**(OUTPUT_WIDTH)) ; i++) begin
+        //   j = -(2**(OUTPUT_WIDTH-1));
+        //   for (int k = 0; k < (2**(OUTPUT_WIDTH)); k++) begin
+        //     C_cg_dt_vals[i][k] = new(z, j, output_cov_copied);
+        //     j = j + 1;
+        //   end
+        //   z = z + 1;
+        // end
+
+        // foreach(A_op_cg_df_vals[i])   A_op_cg_df_vals[i] 	   = new(i, input_cov_copied);
+        // foreach(B_op01_cg_df_vals[i]) B_op01_cg_df_vals[i] = new(i, input_cov_copied);
+        // foreach(B_op11_cg_df_vals[i]) B_op11_cg_df_vals[i] = new(i, input_cov_copied);
+
+        // foreach(A_op_cg_dt_vals[i,j])   A_op_cg_dt_vals[i][j] 	= new(i, j, input_cov_copied);
+        // foreach(B_op01_cg_dt_vals[i,j]) B_op01_cg_dt_vals[i][j] = new(i, j, input_cov_copied);
+        // foreach(B_op11_cg_dt_vals[i,j]) B_op11_cg_dt_vals[i][j] = new(i, j, input_cov_copied);
+
+        // foreach(A_B_en_cg_df_vals[i])   A_B_en_cg_df_vals[i] = new(i, input_cov_copied);
+        // foreach(A_B_en_cg_dt_vals[i,j]) A_B_en_cg_dt_vals[i][j] = new(i, j, input_cov_copied);
+
+        // foreach(ALU_en_cg_df_vals[i])   ALU_en_cg_df_vals[i] = new(i,input_cov_copied);
+        // foreach(ALU_en_cg_dt_vals[i,j]) ALU_en_cg_dt_vals[i][j] = new(i,j,input_cov_copied);
+      
+    end
 
       "repitition_test": begin 
         a_op_repi_cg = new();
@@ -393,8 +513,6 @@ C_OP_inc_cp: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2)
   //---------------------------------------
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
-
-    output_cov_copied = alu_seq_item::type_id::create("output_cov_copied");
     output_item = alu_seq_item::type_id::create("output_item");
     // Create analysis exports
     reset_collected_export = new ("reset_collected_export",this);  
@@ -441,15 +559,15 @@ C_OP_inc_cp: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2)
 
     forever begin
       fork
-        inputs_fifo.get(input_item);
-        outputs_fifo.get(output_item);
+        begin
+          inputs_fifo.get(input_item);
+          input_cov_copied.copy(input_item);
+        end
+        begin
+          outputs_fifo.get(output_item);
+          output_cov_copied.copy(output_item);
+        end
       join
-   
-      //instance based coverage sampling
-//       output_cov_copied.copy(output_item);
-//       foreach(output_dec_dt_cg[i]) begin
-//         output_dec_dt_cg[i].sample();
-//       end
 
       // Increment transaction counter
       count_trans++;
@@ -464,7 +582,26 @@ C_OP_inc_cp: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2)
           output_values_cg.sample(output_item);
           data_ranges_cg.sample(input_item, output_item);
           stability_cg.sample(input_item, output_item);
-          special_cases_cg.sample(input_item);  
+          special_cases_cg.sample(input_item); 
+          foreach(A_cg_df_vals[i]) A_cg_df_vals[i].sample();
+          foreach(B_cg_df_vals[i]) B_cg_df_vals[i].sample();
+
+          // foreach(A_op_cg_dt_vals[i,j])   A_op_cg_dt_vals[i][j].sample();
+          // foreach(B_op01_cg_dt_vals[i,j]) B_op01_cg_dt_vals[i][j].sample();
+          // foreach(B_op11_cg_dt_vals[i,j]) B_op11_cg_dt_vals[i][j].sample();
+
+          // foreach(A_op_cg_df_vals[i])   A_op_cg_df_vals[i].sample();
+          // foreach(B_op01_cg_df_vals[i]) B_op01_cg_df_vals[i].sample();
+          // foreach(B_op11_cg_df_vals[i]) B_op11_cg_df_vals[i].sample();			
+
+          // foreach(A_B_en_cg_df_vals[i]) A_B_en_cg_df_vals[i].sample();
+
+          // foreach(A_B_en_cg_dt_vals[i,j]) A_B_en_cg_dt_vals[i][j].sample();
+
+          // foreach(ALU_en_cg_df_vals[i]) ALU_en_cg_df_vals[i].sample();
+          // foreach(ALU_en_cg_dt_vals[i,j]) ALU_en_cg_dt_vals[i][j].sample();
+
+          // foreach(C_cg_df_vals[i]) C_cg_df_vals[i].sample();
         end
 
         "repitition_test": begin
@@ -475,7 +612,6 @@ C_OP_inc_cp: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2)
 
         "error_test": begin
           error_cg.sample(input_item, output_item);
-
         end
       endcase
       
@@ -487,9 +623,6 @@ C_OP_inc_cp: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2)
   endtask
 
   task coverage_target();
-//     if(a_operations_cg.get_coverage()==100)  alu_seq_item::a_op_cov_trgt = 1;
-//     if(b_operations01_cg.get_coverage()==100)  alu_seq_item::b_op01_cov_trgt = 1;
-//     if(b_operations11_cg.get_coverage()==100)  alu_seq_item::b_op11_cov_trgt = 1;
 
     case(test_name)
       "random_test": begin 
@@ -497,7 +630,15 @@ C_OP_inc_cp: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2)
            && b_operations01_cg.get_coverage()==100 && b_operations11_cg.get_coverage()==100 
            && input_values_cg.get_coverage() == 100 && output_values_cg.get_coverage() == 100
            && data_ranges_cg.get_coverage() == 100 && stability_cg.get_coverage() == 100
-           && special_cases_cg.get_coverage() == 100) 
+           && special_cases_cg.get_coverage() == 100
+           && A_cg_df_vals[0].get_coverage() == 100  && B_cg_df_vals[0].get_coverage() == 100
+          //  && A_op_cg_df_vals[0].get_coverage() == 100 && A_op_cg_dt_vals[0].get_coverage() == 100
+          //  && B_op01_cg_df_vals[0].get_coverage() == 100 && B_op01_cg_dt_vals[0].get_coverage() == 100
+          //  && B_op11_cg_df_vals[0].get_coverage() == 100 && B_op11_cg_dt_vals[0].get_coverage() == 100
+          //  && A_B_en_cg_df_vals[0].get_coverage() == 100 && A_B_en_cg_dt_vals[0].get_coverage() == 100
+          //  && ALU_en_cg_df_vals[0].get_coverage() == 100 && ALU_en_cg_dt_vals[0].get_coverage() == 100
+          //  && C_cg_df_vals[0].get_coverage() == 100        
+           ) 
           alu_seq_item::cov_target = 1;
       end
 
@@ -538,8 +679,28 @@ C_OP_inc_cp: coverpoint out_trans.C iff ((out_trans.OP_B11_e == B11_B_ADD_2)
         `uvm_info(get_type_name(), $sformatf("Data Ranges    Coverage: %.2f%%", data_ranges_cg.get_coverage()), UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("Stability      Coverage: %.2f%%", stability_cg.get_coverage()), UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("Special Cases  Coverage: %.2f%%", special_cases_cg.get_coverage()), UVM_LOW)
-      end
 
+        `uvm_info(get_type_name(), $sformatf("A_cg_df  Coverage: %.2f%%", A_cg_df_vals[0].get_coverage()), UVM_LOW)
+        `uvm_info(get_type_name(), $sformatf("B_cg_df  Coverage: %.2f%%", B_cg_df_vals[0].get_coverage()), UVM_LOW)
+
+        // `uvm_info(get_type_name(), $sformatf("A_op_cg_df  Coverage: %.2f%%", A_op_cg_df_vals[0].get_coverage()), UVM_LOW)
+        // `uvm_info(get_type_name(), $sformatf("A_op_cg_dt  Coverage: %.2f%%", A_op_cg_dt_vals[0].get_coverage()), UVM_LOW)
+
+        // `uvm_info(get_type_name(), $sformatf("B_op01_cg_df  Coverage: %.2f%%", B_op01_cg_df_vals[0].get_coverage()), UVM_LOW)
+        // `uvm_info(get_type_name(), $sformatf("B_op01_cg_dt  Coverage: %.2f%%", B_op01_cg_dt_vals[0].get_coverage()), UVM_LOW)
+
+        // `uvm_info(get_type_name(), $sformatf("B_op11_cg_df  Coverage: %.2f%%", B_op11_cg_df_vals[0].get_coverage()), UVM_LOW)
+        // `uvm_info(get_type_name(), $sformatf("B_op11_cg_dt  Coverage: %.2f%%", B_op11_cg_dt_vals[0].get_coverage()), UVM_LOW)
+
+        // `uvm_info(get_type_name(), $sformatf("A_B_en_cg_df  Coverage: %.2f%%", A_B_en_cg_df_vals[0].get_coverage()), UVM_LOW)
+        // `uvm_info(get_type_name(), $sformatf("A_B_en_cg_dt  Coverage: %.2f%%", A_B_en_cg_dt_vals[0].get_coverage()), UVM_LOW) 
+
+        // `uvm_info(get_type_name(), $sformatf("ALU_en_cg_df  Coverage: %.2f%%", ALU_en_cg_df_vals[0].get_coverage()), UVM_LOW)
+        // `uvm_info(get_type_name(), $sformatf("ALU_en_cg_dt  Coverage: %.2f%%", ALU_en_cg_dt_vals[0].get_coverage()), UVM_LOW)
+
+        // `uvm_info(get_type_name(), $sformatf("C_cg_df  Coverage: %.2f%%", C_cg_df_vals[0].get_coverage()), UVM_LOW)                      
+      end
+      
       "repitition_test": begin 
         `uvm_info(get_type_name(), $sformatf("repitition cg for op_A Coverage: %.2f%%", a_op_repi_cg.get_coverage()), UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("repitition cg for op_B1 Coverage: %.2f%%", b_op01_repi_cg.get_coverage()), UVM_LOW)

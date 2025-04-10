@@ -48,26 +48,19 @@ module ALU #(parameter INPUT_WIDTH, OUTPUT_WIDTH, A_OP_WIDTH, B_OP_WIDTH) (
 
 
   // Control signals determining which operation set is active
-  wire operand_IDLE =  ~a_en  && ~b_en;           // IDLE MODE
+  //wire operand_IDLE =  ~a_en  && ~b_en;           // IDLE MODE
   wire operand_A    =  a_en   && ~b_en;           // Set A operations
-  wire operand_B01  =  ~a_en  && b_en;            // Set B (Subset 1) operations
-  wire operand_B11  =  a_en   && b_en;            // Set B (Subset 2) operations
-  wire valid_mode   =  rst_n && ALU_en;  // Valid Mode
+  wire operand_B01  =   ~a_en  && b_en;            // Set B (Subset 1) operations
+  wire operand_B11  =   a_en   && b_en;            // Set B (Subset 2) operations
+  wire valid_mode   =  ALU_en && rst_n && (a_en || b_en);  	 // Valid Mode
 
   // Internal signal to hold the computed result
-  reg signed [5:0] result;
-  reg signed [5:0] prev_result;
-
+  reg signed [5:0] result, prev_result;
 
   // ALU Operation Logic - Determines the result based on the enabled operation set
   always @(*) begin
-    result = 0;
-    if(ALU_en) begin   
-      if(operand_IDLE)begin
-        result = prev_result;
-        $display("Time:%0t HELLO RESULT %0d", $time() ,result);
-      end
-      else if (operand_A) begin
+    result = 6'b0;
+      if (operand_A) begin
         // Execute operations from set A
         case (a_op)
           A_ADD:  result = {A[4],A} + {B[4],B};   // Addition
@@ -77,7 +70,7 @@ module ALU #(parameter INPUT_WIDTH, OUTPUT_WIDTH, A_OP_WIDTH, B_OP_WIDTH) (
           A_AND2: result = {1'b0,A} & {1'b0,B};   // AND2
           A_OR:   result = {1'b0,A} | {1'b0,B};   // OR
           A_XNOR: result = ~({1'b0,A} ^ {1'b0,B}); // XNOR
-          A_NULL: result = prev_result;  
+          A_NULL: result = 6'b0;  
           default: $error("X Propagation at a_op opcode");   // Default case
         endcase
       end
@@ -87,7 +80,7 @@ module ALU #(parameter INPUT_WIDTH, OUTPUT_WIDTH, A_OP_WIDTH, B_OP_WIDTH) (
           B01_NAND: result = ( (~{1'b0,A}) | (~{1'b0,B}));  // NAND
           B01_ADD1: result =     {A[4],A} + {B[4],B};     // Addition1
           B01_ADD2: result =     {A[4],A} + {B[4],B};     // Addition2
-          B01_NULL: result = prev_result;
+          B01_NULL: result = 6'b0;
           default:  $error("X Propagation at b_op opcode");      // Default case
         endcase
       end
@@ -102,17 +95,8 @@ module ALU #(parameter INPUT_WIDTH, OUTPUT_WIDTH, A_OP_WIDTH, B_OP_WIDTH) (
         endcase
       end
       else begin
-        $error("X Propagation at a_en or b_en");
+	//$error("X Propagation at a_en or b_en");
       end
-    end
-    else if (~ALU_en) begin
-      result = prev_result;
-    end 
-    else begin
-      $error("X Propagation at ALU_en");
-    end
-  if(result == 7) $display("TIME %0t result = 7", $time());
-  prev_result = result;
   end
 
   // Output Register - Captures the result at the rising edge of clk
@@ -121,13 +105,7 @@ module ALU #(parameter INPUT_WIDTH, OUTPUT_WIDTH, A_OP_WIDTH, B_OP_WIDTH) (
       C <= 6'b0; // Reset output to 0
     end
     else begin
-      C <= result; // Store computed result
-    end
-  end
-
-  always@(negedge rst_n) begin
-    if(~rst_n) begin
-      prev_result = 0;
+      if (valid_mode) C <= result; // Store computed result
     end
   end
 
